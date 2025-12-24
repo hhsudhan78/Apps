@@ -130,6 +130,21 @@ function setupFirebaseSync() {
             clearBuzzerUI();
         }
     });
+
+    // Watch for Team Count
+    gameRef.child('selectedTeamCount').on('value', (snapshot) => {
+        const count = snapshot.val();
+        if (count) {
+            gameState.selectedTeamCount = count;
+            if (gameState.role === 'host') {
+                document.querySelectorAll('.team-count-btn').forEach(btn => {
+                    btn.classList.toggle('active', parseInt(btn.innerText) === count);
+                });
+            } else {
+                updatePlayerUI();
+            }
+        }
+    });
 }
 
 // --- Host Logic ---
@@ -181,8 +196,9 @@ function selectTeamCount(count) {
         btn.classList.toggle('active', parseInt(btn.innerText) === count);
     });
 
-    // Clear Firebase teams if count changes (optional, but keeps it clean)
     if (db) {
+        db.ref('games/' + gameState.gameId + '/selectedTeamCount').set(count);
+        // Clear Firebase teams if count changes (optional, but keeps it clean)
         db.ref('games/' + gameState.gameId + '/teams').set(null);
     }
 }
