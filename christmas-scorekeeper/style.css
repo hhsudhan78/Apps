@@ -1,0 +1,253 @@
+:root {
+    --christmas-red: #d42426;
+    --christmas-green: #2f5a2e;
+    --christmas-gold: #f8b229;
+    --snow-white: #ffffff;
+    --bg-gradient: linear-gradient(135deg, #1a2a1a 0%, #2f5a2e 100%);
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Outfit', sans-serif;
+}
+
+body {
+    background: var(--bg-gradient);
+    color: white;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding: 20px;
+}
+
+h1, h2, .team-name {
+    font-family: 'Mountains of Christmas', cursive;
+    font-weight: 700;
+}
+
+h1 {
+    font-size: 3rem;
+    text-shadow: var(--text-shadow);
+    text-align: center;
+    margin-bottom: 0.2rem;
+    color: var(--christmas-gold);
+}
+
+.subtitle {
+    text-align: center;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.app-container {
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+}
+
+/* Glassmorphism Card Style */
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.screen {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.screen.hidden {
+    display: none;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.screen.active {
+    display: block; /* changed from flex to block to fix layout issues */
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Setup Screen Inputs */
+.input-group {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.team-selector {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 2rem;
+}
+
+.team-count-btn {
+    background: rgba(255,255,255,0.1);
+    border: 2px solid transparent;
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.team-count-btn.active, .team-count-btn:hover {
+    background: var(--christmas-red);
+    border-color: var(--christmas-gold);
+    transform: scale(1.1);
+}
+
+.team-name-input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    border: none;
+    background: rgba(255,255,255,0.9);
+    font-size: 1rem;
+    color: #333;
+}
+
+/* Buttons */
+.btn-primary, .btn-secondary, .score-btn {
+    border: none;
+    cursor: pointer;
+    font-family: 'Mountains of Christmas', cursive;
+    font-weight: 700;
+    transition: transform 0.1s;
+}
+
+.btn-primary {
+    background: linear-gradient(to bottom, #d42426, #b3000c);
+    color: white;
+    width: 100%;
+    padding: 15px;
+    border-radius: 15px;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 0 #8a0000;
+}
+
+.btn-primary:active {
+    transform: translateY(4px);
+    box-shadow: none;
+}
+
+.btn-secondary {
+    background: rgba(0,0,0,0.3);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+}
+
+/* Game Board Grid */
+.scoreboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.score-card {
+    background: #fff; /* Fallback */
+    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,240,240,0.9) 100%);
+    color: #333;
+    border-radius: 20px;
+    padding: 1.5rem;
+    text-align: center;
+    position: relative;
+    border: 4px solid var(--christmas-gold);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.score-card h3 {
+    color: var(--christmas-red);
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 2px dashed #ddd;
+    padding-bottom: 10px;
+}
+
+.current-score {
+    font-size: 4rem;
+    font-weight: 800;
+    color: var(--christmas-green);
+    margin: 1rem 0;
+}
+
+.score-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.score-btn {
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    color: white;
+}
+
+.btn-add { background: var(--christmas-green); }
+.btn-sub { background: var(--christmas-red); }
+.btn-bonus { background: var(--christmas-gold); grid-column: span 3; color: #333; }
+
+.controls-bar {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+/* Snowflake Animation */
+.snowflake {
+    color: #fff;
+    font-size: 1em;
+    font-family: Arial, sans-serif;
+    text-shadow: 0 0 5px #000;
+    position: fixed;
+    top: -10%;
+    z-index: 1;
+    user-select: none;
+    animation-name: snowflakes-fall, snowflakes-shake;
+    animation-duration: 10s, 3s;
+    animation-timing-function: linear, ease-in-out;
+    animation-iteration-count: infinite, infinite;
+    animation-play-state: running, running;
+}
+@keyframes snowflakes-fall { 
+    0% { top: -10%; } 
+    100% { top: 100%; }
+}
+@keyframes snowflakes-shake {
+    0% { transform: translateX(0px); }
+    50% { transform: translateX(80px); }
+    100% { transform: translateX(0px); }
+}
+.snowflake:nth-of-type(1) { left: 1%; animation-delay: 0s, 0s; }
+.snowflake:nth-of-type(2) { left: 10%; animation-delay: 1s, 1s; }
+.snowflake:nth-of-type(3) { left: 20%; animation-delay: 6s, .5s; }
+.snowflake:nth-of-type(4) { left: 30%; animation-delay: 4s, 2s; }
+.snowflake:nth-of-type(5) { left: 40%; animation-delay: 2s, 2s; }
+.snowflake:nth-of-type(6) { left: 50%; animation-delay: 8s, 3s; }
+.snowflake:nth-of-type(7) { left: 60%; animation-delay: 6s, 2s; }
+.snowflake:nth-of-type(8) { left: 70%; animation-delay: 2.5s, 1s; }
+.snowflake:nth-of-type(9) { left: 80%; animation-delay: 1s, 0s; }
+.snowflake:nth-of-type(10) { left: 90%; animation-delay: 3s, 1.5s; }

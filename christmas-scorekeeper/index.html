@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M&J Family Christmas Party 🎄</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Outfit:wght@400;600;800&display=swap"
+        rel="stylesheet">
+    <meta name="theme-color" content="#b3000c">
+</head>
+
+<body>
+    <div class="snowflakes" aria-hidden="true">
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+        <div class="snowflake">❅</div>
+        <div class="snowflake">❆</div>
+    </div>
+
+    <div class="app-container">
+        <header>
+            <h1>🎄 M&J Family Christmas Party 🎅</h1>
+            <p class="subtitle">Ho Ho Ho! Let the games begin!</p>
+        </header>
+
+        <!-- Setup Screen -->
+        <div id="setup-screen" class="screen active">
+            <div class="card glass">
+                <h2>Game Setup</h2>
+                <div class="input-group">
+                    <label>How many teams?</label>
+                    <div class="team-selector">
+                        <button class="team-count-btn" onclick="selectTeamCount(2)">2</button>
+                        <button class="team-count-btn active" onclick="selectTeamCount(3)">3</button>
+                        <button class="team-count-btn" onclick="selectTeamCount(4)">4</button>
+                        <button class="team-count-btn" onclick="selectTeamCount(5)">5</button>
+                    </div>
+                </div>
+
+                <div id="team-names-container">
+                    <!-- Injected via JS -->
+                </div>
+
+                <button class="btn-primary large" onclick="startGame()">Start The Party! 🎁</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen hidden">
+            <div id="scoreboard" class="scoreboard-grid">
+                <!-- Team Cards Injected Here -->
+            </div>
+
+            <div class="controls-bar glass">
+                <button class="btn-secondary" onclick="resetScores()">Reset Scores</button>
+                <button class="btn-secondary" onclick="newGame()">New Game</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
