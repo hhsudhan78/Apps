@@ -336,8 +336,25 @@ function updateModeUI() {
     if (revealBtn) revealBtn.classList.toggle('hidden', !isBio);
 }
 
+function setBioscopeRound(roundNum) {
+    gameState.bioscopeRound = roundNum;
+    gameState.bioscopeRevealedCount = 0;
+
+    // Update Host UI Buttons
+    document.querySelectorAll('.round-btn').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.innerText) === roundNum);
+    });
+
+    if (db) {
+        db.ref('games/' + gameState.gameId + '/bioscope').set({
+            round: roundNum,
+            revealedCount: 0
+        });
+    }
+}
+
 function revealNextImage() {
-    if (gameState.bioscopeRevealedCount < 4) {
+    if (gameState.bioscopeRevealedCount < 6) {
         gameState.bioscopeRevealedCount++;
         if (db) {
             db.ref('games/' + gameState.gameId + '/bioscope/revealedCount').set(gameState.bioscopeRevealedCount);
@@ -346,15 +363,24 @@ function revealNextImage() {
 }
 
 function renderBioscope() {
-    for (let i = 1; i <= 4; i++) {
+    const roundData = bioscopePuzzles.find(p => p.round === gameState.bioscopeRound);
+    if (!roundData) return;
+
+    // Update Round Counter on TV
+    const roundNumEl = document.getElementById('current-round-number');
+    const roundInfoEl = document.getElementById('bioscope-round-info');
+    if (roundNumEl) roundNumEl.innerText = gameState.bioscopeRound;
+    if (roundInfoEl) roundInfoEl.classList.remove('hidden');
+
+    for (let i = 1; i <= 6; i++) {
         const frame = document.getElementById(`frame-${i}`);
         if (!frame) continue;
 
         const isRevealed = i <= gameState.bioscopeRevealedCount;
-        const url = gameState.bioscopeImages[i - 1];
+        const url = roundData.images[i - 1];
 
         if (isRevealed && url) {
-            frame.innerHTML = `<img src="${url}" alt="Lyric Clue">`;
+            frame.innerHTML = `<img src="${url}" alt="Lyric Clue" onerror="this.src='https://placehold.co/400x400?text=Clue+Not+Found'">`;
             frame.classList.add('revealed');
         } else {
             frame.innerHTML = `<span style="font-size:2rem; opacity:0.3;">${i}</span>`;
@@ -363,22 +389,23 @@ function renderBioscope() {
     }
 }
 
+function initBioscopeRoundSelector() {
+    const container = document.getElementById('round-selector-grid');
+    if (!container) return;
+
+    container.innerHTML = "";
+    for (let i = 1; i <= 10; i++) {
+        container.innerHTML += `<button class="round-btn ${i === 1 ? 'active' : ''}" onclick="setBioscopeRound(${i})">${i}</button>`;
+    }
+}
+
 function startGame() {
     try {
         console.log("Attempting to start game. Teams:", gameState.teams.length);
 
-        // Finalize Bioscope Config if in that mode
         if (gameState.gameMode === 'bioscope' && db) {
-            const imgs = [
-                document.getElementById('bio-img-1').value || "https://images.unsplash.com/photo-1543508282-6319a3e2621f?w=400",
-                document.getElementById('bio-img-2').value || "https://images.unsplash.com/photo-1512338811107-1bc548325615?w=400",
-                document.getElementById('bio-img-3').value || "https://images.unsplash.com/photo-1576919228236-a097c32a5cd4?w=400",
-                document.getElementById('bio-img-4').value || "https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=400"
-            ];
-            db.ref('games/' + gameState.gameId + '/bioscope').set({
-                images: imgs,
-                revealedCount: 0
-            });
+            // Reset revelation for the selected round
+            db.ref('games/' + gameState.gameId + '/bioscope/revealedCount').set(0);
         }
 
         const setupScreen = document.getElementById('setup-screen');
