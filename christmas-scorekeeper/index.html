@@ -69,10 +69,27 @@
 
             <div class="controls-bar glass">
                 <button class="btn-secondary" onclick="resetScores()">Reset Scores</button>
+                <button class="btn-primary" onclick="finishGame()">🏆 Finish Game</button>
                 <button class="btn-secondary" onclick="newGame()">New Game</button>
             </div>
         </div>
+
+        <!-- Winner Screen -->
+        <div id="winner-screen" class="screen hidden overlay">
+            <canvas id="confetti-canvas"></canvas>
+            <div class="winner-card glass">
+                <h2>🎉 And the Winner Is... 🏆</h2>
+                <div id="winner-name" class="winner-text"></div>
+                <div id="winner-score" class="winner-score"></div>
+                <button class="btn-primary large" onclick="closeWinnerScreen()">Keep Playing 🎅</button>
+            </div>
+        </div>
     </div>
+
+    <!-- Celebration Audio -->
+    <audio id="celebration-audio" preload="auto">
+        <source src="https://assets.mixkit.co/active_storage/sfx/951/951-preview.mp3" type="audio/mpeg">
+    </audio>
 
     <script src="script.js"></script>
 </body>

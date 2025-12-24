@@ -281,3 +281,65 @@ h1 {
 .snowflake:nth-of-type(8) { left: 70%; animation-delay: 2.5s, 1s; }
 .snowflake:nth-of-type(9) { left: 80%; animation-delay: 1s, 0s; }
 .snowflake:nth-of-type(10) { left: 90%; animation-delay: 3s, 1.5s; }
+
+/* Winner Screen Overlay */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.winner-card {
+    background: rgba(255, 255, 255, 0.15);
+    border: 3px solid var(--christmas-gold);
+    max-width: 90%;
+    width: 500px;
+    text-align: center;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    z-index: 102;
+}
+
+.winner-text {
+    font-family: 'Mountains of Christmas', cursive;
+    font-size: 3.5rem;
+    color: var(--christmas-gold);
+    margin: 20px 0;
+    text-shadow: 0 0 20px rgba(248, 178, 41, 0.5);
+    animation: winnerPulse 2s infinite;
+}
+
+.winner-score {
+    font-size: 5rem;
+    font-weight: 800;
+    color: var(--snow-white);
+    margin-bottom: 30px;
+}
+
+#confetti-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 101;
+}
+
+@keyframes winnerPulse {
+    0% { transform: scale(1); text-shadow: 0 0 10px rgba(248, 178, 41, 0.5); }
+    50% { transform: scale(1.1); text-shadow: 0 0 30px rgba(248, 178, 41, 1); }
+    100% { transform: scale(1); text-shadow: 0 0 10px rgba(248, 178, 41, 0.5); }
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+}
