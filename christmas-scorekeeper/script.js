@@ -173,12 +173,16 @@ function finishGame() {
 
     speakWinner(winnerText);
 
-    // Play Background Celebration Music at low volume
+    // Play Background Celebration Music
     const bgMusic = document.getElementById('bg-celebration-music');
     if (bgMusic) {
-        bgMusic.volume = 0.2;
+        bgMusic.volume = 0.5; // Increased volume from 0.2 to 0.5
         bgMusic.currentTime = 0;
-        bgMusic.play().catch(e => console.log("Background music play failed:", e));
+        bgMusic.play().catch(e => {
+            console.log("Background music play failed:", e);
+            // Try playing again without resetting time if it failed
+            bgMusic.play();
+        });
     }
 
     // Start Confetti
@@ -281,6 +285,12 @@ window.addEventListener('resize', () => {
 function playCelebrationAudio() {
     if (gameState.lastAnnouncement) {
         speakWinner(gameState.lastAnnouncement);
+    }
+
+    const bgMusic = document.getElementById('bg-celebration-music');
+    if (bgMusic && bgMusic.paused) {
+        bgMusic.currentTime = 0;
+        bgMusic.play().catch(e => console.log("Manual music play failed:", e));
     }
 }
 
