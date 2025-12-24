@@ -247,3 +247,11 @@ window.addEventListener('resize', () => {
         canvas.height = window.innerHeight;
     }
 });
+
+function playCelebrationAudio() {
+    const audio = document.getElementById('celebration-audio');
+    if(audio) {
+        audio.currentTime = 0;
+        audio.play().catch(e => console.log("Audio play failed:", e));
+    }
+}
