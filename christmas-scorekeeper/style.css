@@ -70,12 +70,15 @@ h1 {
     -webkit-backdrop-filter: blur(10px);
 }
 
+.hidden {
+    display: none !important;
+}
+
 .screen {
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .screen.hidden {
-    display: none !important;
     opacity: 0;
     transform: translateY(20px);
 }
