@@ -336,6 +336,13 @@ function handleBuzzerTrigger(teamId) {
     const winner = gameState.teams.find(t => t.id === teamId);
 
     if (gameState.role === 'host') {
+        // Play Buzzer SFX on Host
+        const buzzerSfx = document.getElementById('buzzer-sfx');
+        if (buzzerSfx) {
+            buzzerSfx.currentTime = 0;
+            buzzerSfx.play().catch(e => console.log("Buzzer play failed:", e));
+        }
+
         const alert = document.getElementById('buzzer-alert');
         const nameEl = document.getElementById('buzzer-winner-name');
         if (winner && alert && nameEl) {
