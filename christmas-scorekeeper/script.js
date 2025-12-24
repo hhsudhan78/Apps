@@ -110,11 +110,31 @@ function generateInviteQR() {
     const joinUrl = window.location.href.split('?')[0] + '?join=true';
     const qrcodeContainer = document.getElementById('qrcode');
     qrcodeContainer.innerHTML = "";
+
+    // Create QR
     new QRCode(qrcodeContainer, {
         text: joinUrl,
         width: 128,
         height: 128
     });
+
+    // Show text link below for debugging
+    const linkText = document.createElement('div');
+    linkText.style.fontSize = '10px';
+    linkText.style.marginTop = '10px';
+    linkText.style.color = '#ccc';
+    linkText.style.wordBreak = 'break-all';
+    linkText.innerText = joinUrl;
+    qrcodeContainer.appendChild(linkText);
+
+    if (joinUrl.startsWith('file://')) {
+        const warning = document.createElement('p');
+        warning.style.color = '#ff4d4d';
+        warning.style.fontWeight = 'bold';
+        warning.style.fontSize = '12px';
+        warning.innerText = "⚠️ Scanning won't work while opening as a 'file'. See walkthrough for fixes!";
+        qrcodeContainer.appendChild(warning);
+    }
 }
 
 function selectTeamCount(count) {
