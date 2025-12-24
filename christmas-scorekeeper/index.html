@@ -12,11 +12,16 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Outfit:wght@400;600;800&display=swap"
         rel="stylesheet">
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <meta name="theme-color" content="#b3000c">
 </head>
 
 <body>
     <div class="snowflakes" aria-hidden="true">
+        <!-- ... snowflakes ... -->
         <div class="snowflake">❅</div>
         <div class="snowflake">❆</div>
         <div class="snowflake">❅</div>
@@ -35,12 +40,18 @@
             <p class="subtitle">Ho Ho Ho! Let the games begin!</p>
         </header>
 
-        <!-- Setup Screen -->
+        <!-- Setup Screen (Host Only) -->
         <div id="setup-screen" class="screen active">
             <div class="card glass">
                 <h2>Game Setup</h2>
+
+                <div class="qr-section">
+                    <p>Guests scan to join!</p>
+                    <div id="qrcode"></div>
+                </div>
+
                 <div class="input-group">
-                    <label>How many teams?</label>
+                    <label>How many teams are playing?</label>
                     <div class="team-selector">
                         <button class="team-count-btn" onclick="selectTeamCount(2)">2</button>
                         <button class="team-count-btn active" onclick="selectTeamCount(3)">3</button>
@@ -50,18 +61,48 @@
                 </div>
 
                 <div id="team-names-container">
-                    <!-- Injected via JS -->
+                    <p class="waiting-msg">Waiting for players to join via QR code...</p>
                 </div>
 
-                <button class="btn-primary large" onclick="startGame()">Start The Party! 🎁</button>
+                <button class="btn-primary large" id="start-btn" onclick="startGame()">Start The Party! 🎁</button>
             </div>
         </div>
 
-        <!-- Game Screen -->
+        <!-- Player Join Screen (Guests Only) -->
+        <div id="player-join-screen" class="screen hidden">
+            <div class="card glass">
+                <h2>Join a Team!</h2>
+                <div id="player-team-selection">
+                    <!-- Dynamic team slots -->
+                </div>
+                <div id="player-entry" class="hidden">
+                    <input type="text" id="player-name-input" class="team-name-input"
+                        placeholder="Enter your Team Name">
+                    <button class="btn-primary" onclick="submitPlayerName()">Ready to Win! 🚀</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buzzer Screen (Guests Only) -->
+        <div id="buzzer-screen" class="screen hidden">
+            <div class="buzzer-container">
+                <div id="player-team-info" class="team-display">Team: ...</div>
+                <button id="buzzer-btn" class="buzzer-btn" onclick="pressBuzzer()">
+                    <span class="buzzer-text">BUZZ!</span>
+                </button>
+                <div id="buzzer-status" class="buzzer-status">Ready...</div>
+            </div>
+        </div>
+
+        <!-- Game Screen (Host Only) -->
         <div id="game-screen" class="screen hidden">
             <div class="game-header">
                 <input type="text" id="game-name-input" placeholder="Enter Game Name (e.g. Trivia)"
                     oninput="updateGameName(this.value)">
+                <div id="buzzer-alert" class="buzzer-alert hidden">
+                    <span id="buzzer-winner-name">TEAM NAME</span> BUZZED IN!
+                    <button class="btn-secondary" onclick="resetBuzzer()">Clear Buzz</button>
+                </div>
             </div>
             <div id="scoreboard" class="scoreboard-grid">
                 <!-- Team Cards Injected Here -->

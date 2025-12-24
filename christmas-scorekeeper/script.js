@@ -1,150 +1,327 @@
-let gameState = {
-    teams: [],
-    history: [],
-    gameName: ""
+/**
+ * Christmas Scorer - Real-time Interactive Version
+ * Roles: 
+ * - Host: Manages scores, starts game, holds the main display.
+ * - Player: Joins via QR, enters team name, acts as a buzzer.
+ */
+
+// Firebase Configuration - Placeholder
+// USER: Replace this once you have your Firebase config!
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
 };
 
-// Default team names
-const defaultNames = ["Santa's Helpers", "Rudolph's Racers", "Frosty's Friends", "Elf Squad", "Jingle Bells"];
+// Initialize Firebase (Compat)
+let db;
+try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+} catch (e) {
+    console.error("Firebase not configured. Using local mode.", e);
+}
 
-let currentTeamCount = 3;
+// Global State
+let gameState = {
+    role: 'host', // 'host' or 'player'
+    gameId: 'xmas-party-2025', // Fixed for this party
+    selectedTeamCount: 3,
+    teams: [],
+    gameName: "",
+    lastAnnouncement: "",
+    myTeamId: null, // For players
+    buzzerWinner: null
+};
 
-document.addEventListener('DOMContentLoaded', () => {
-    renderTeamInputs();
+// --- Initialization ---
 
-    // Check for saved game
-    const saved = localStorage.getItem('christmasGame');
-    if (saved) {
-        if (confirm("Resume previous game?")) {
-            gameState = JSON.parse(saved);
-            startGame(true);
-            if (gameState.gameName) {
-                document.getElementById('game-name-input').value = gameState.gameName;
-            }
+window.onload = () => {
+    detectRole();
+    setupFirebaseSync();
+
+    if (gameState.role === 'host') {
+        generateInviteQR();
+        // Load local game if exists
+        const saved = localStorage.getItem('christmasGame_v2');
+        if (saved) {
+            const data = JSON.parse(saved);
+            gameState.gameName = data.gameName || "";
         }
     }
-});
+};
+
+function detectRole() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('join')) {
+        gameState.role = 'player';
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('player-join-screen').classList.remove('active', 'hidden');
+        document.getElementById('player-join-screen').classList.add('active');
+    } else {
+        gameState.role = 'host';
+    }
+}
+
+function setupFirebaseSync() {
+    if (!db) return;
+
+    const gameRef = db.ref('games/' + gameState.gameId);
+
+    // Watch for Team Changes
+    gameRef.child('teams').on('value', (snapshot) => {
+        const teamsData = snapshot.val();
+        gameState.teams = teamsData ? Object.values(teamsData) : [];
+
+        if (gameState.role === 'host') {
+            updateHostUI();
+        } else {
+            updatePlayerUI();
+        }
+    });
+
+    // Watch for Game Name
+    gameRef.child('gameName').on('value', (snapshot) => {
+        gameState.gameName = snapshot.val() || "";
+        const input = document.getElementById('game-name-input');
+        if (input && document.activeElement !== input) {
+            input.value = gameState.gameName;
+        }
+    });
+
+    // Watch for Buzzer
+    gameRef.child('buzzer').on('value', (snapshot) => {
+        const buzzerData = snapshot.val();
+        if (buzzerData && buzzerData.teamId !== null) {
+            handleBuzzerTrigger(buzzerData.teamId);
+        } else {
+            clearBuzzerUI();
+        }
+    });
+}
+
+// --- Host Logic ---
+
+function generateInviteQR() {
+    const joinUrl = window.location.href.split('?')[0] + '?join=true';
+    const qrcodeContainer = document.getElementById('qrcode');
+    qrcodeContainer.innerHTML = "";
+    new QRCode(qrcodeContainer, {
+        text: joinUrl,
+        width: 128,
+        height: 128
+    });
+}
 
 function selectTeamCount(count) {
-    currentTeamCount = count;
+    gameState.selectedTeamCount = count;
     document.querySelectorAll('.team-count-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (parseInt(btn.innerText) === count) btn.classList.add('active');
+        btn.classList.toggle('active', parseInt(btn.innerText) === count);
     });
-    renderTeamInputs();
+
+    // Clear Firebase teams if count changes (optional, but keeps it clean)
+    if (db) {
+        db.ref('games/' + gameState.gameId + '/teams').set(null);
+    }
 }
 
-function renderTeamInputs() {
+function updateHostUI() {
     const container = document.getElementById('team-names-container');
-    container.innerHTML = '';
+    const startBtn = document.getElementById('start-btn');
 
-    for (let i = 0; i < currentTeamCount; i++) {
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'team-name-input';
-        input.placeholder = `Team ${i + 1} Name (e.g. ${defaultNames[i]})`;
-        input.id = `team-input-${i}`;
-        container.appendChild(input);
+    if (gameState.teams.length === 0) {
+        container.innerHTML = '<p class="waiting-msg">Waiting for players to join via QR code...</p>';
+        startBtn.disabled = true;
+    } else {
+        container.innerHTML = '<h3>Joined Teams:</h3>';
+        gameState.teams.forEach(team => {
+            container.innerHTML += `<div class="team-slot">${team.name || '<i>Joining...</i>'}</div>`;
+        });
+        startBtn.disabled = gameState.teams.length < 2;
     }
-}
-
-function startGame(isResumed = false) {
-    if (!isResumed) {
-        // Initialize new game
-        gameState.teams = [];
-        for (let i = 0; i < currentTeamCount; i++) {
-            const nameInput = document.getElementById(`team-input-${i}`);
-            const name = nameInput.value.trim() || defaultNames[i];
-            gameState.teams.push({
-                name: name,
-                score: 0
-            });
-        }
-        gameState.history = [];
-        gameState.gameName = "";
-    }
-
-    document.getElementById('setup-screen').classList.remove('active');
-    document.getElementById('setup-screen').classList.add('hidden');
-    document.getElementById('game-screen').classList.remove('hidden');
-
-    // Small delay to allow display:block to apply before opacity transition
-    setTimeout(() => {
-        document.getElementById('game-screen').classList.add('active');
-    }, 10);
 
     renderScoreboard();
-    saveGame();
+}
+
+function startGame() {
+    document.getElementById('setup-screen').classList.add('hidden');
+    document.getElementById('game-screen').classList.remove('hidden');
+    renderScoreboard();
+    saveState();
 }
 
 function renderScoreboard() {
-    const board = document.getElementById('scoreboard');
-    board.innerHTML = '';
+    const scoreboard = document.getElementById('scoreboard');
+    if (!scoreboard) return;
+    scoreboard.innerHTML = "";
 
     gameState.teams.forEach((team, index) => {
         const card = document.createElement('div');
-        card.className = 'score-card';
+        card.className = `team-card glass ${gameState.buzzerWinner === team.id ? 'buzzed' : ''}`;
         card.innerHTML = `
-            <h3>${team.name}</h3>
-            <div class="current-score">${team.score}</div>
+            <div class="team-name">${team.name}</div>
+            <div class="score-display" id="score-${team.id}">${team.score}</div>
             <div class="score-controls">
-                <button class="score-btn btn-sub" onclick="updateScore(${index}, -1)">-1</button>
-                <button class="score-btn btn-add" onclick="updateScore(${index}, 1)">+1</button>
-                <button class="score-btn btn-add" onclick="updateScore(${index}, 5)">+5</button>
-                <button class="score-btn btn-add" onclick="updateScore(${index}, 10)">+10</button>
-                <button class="score-btn btn-bonus" onclick="updateScore(${index}, 25)">✨ Bonus (+25)</button>
+                <button class="score-btn" onclick="updateScore('${team.id}', -1)">-1</button>
+                <button class="score-btn" onclick="updateScore('${team.id}', 1)">+1</button>
+                <div class="bonus-row">
+                    <button class="score-btn bonus" onclick="updateScore('${team.id}', 5)">+5</button>
+                    <button class="score-btn bonus" onclick="updateScore('${team.id}', 25)">+25</button>
+                </div>
             </div>
         `;
-        board.appendChild(card);
+        scoreboard.appendChild(card);
     });
+}
+
+function updateScore(teamId, delta) {
+    const team = gameState.teams.find(t => t.id === teamId);
+    if (team) {
+        team.score = Math.max(0, (team.score || 0) + delta);
+        if (db) {
+            db.ref(`games/${gameState.gameId}/teams/${teamId}/score`).set(team.score);
+        }
+        saveState();
+    }
 }
 
 function updateGameName(name) {
     gameState.gameName = name;
-    saveGame();
+    if (db) {
+        db.ref(`games/${gameState.gameId}/gameName`).set(name);
+    }
+    saveState();
 }
 
-function updateScore(teamIndex, points) {
-    gameState.teams[teamIndex].score += points;
-    renderScoreboard();
-    saveGame();
+// --- Player Logic ---
+
+function updatePlayerUI() {
+    const selection = document.getElementById('player-team-selection');
+    if (!selection) return;
+
+    if (!gameState.myTeamId) {
+        // Show available slots
+        selection.innerHTML = "<h3>Pick a Team Number:</h3>";
+        for (let i = 1; i <= gameState.selectedTeamCount; i++) {
+            const teamId = `team_${i}`;
+            const existing = gameState.teams.find(t => t.id === teamId);
+            if (!existing) {
+                selection.innerHTML += `<button class="btn-secondary" onclick="joinTeamSlot('${teamId}')">Team ${i}</button>`;
+            }
+        }
+    }
 }
+
+function joinTeamSlot(teamId) {
+    gameState.myTeamId = teamId;
+    document.getElementById('player-team-selection').classList.add('hidden');
+    document.getElementById('player-entry').classList.remove('hidden');
+}
+
+function submitPlayerName() {
+    const nameInput = document.getElementById('player-name-input');
+    const name = nameInput.value.trim() || `Team ${gameState.myTeamId.split('_')[1]}`;
+
+    if (db) {
+        db.ref(`games/${gameState.gameId}/teams/${gameState.myTeamId}`).set({
+            id: gameState.myTeamId,
+            name: name,
+            score: 0
+        });
+    }
+
+    document.getElementById('player-join-screen').classList.add('hidden');
+    document.getElementById('buzzer-screen').classList.remove('hidden');
+    document.getElementById('player-team-info').innerText = "Team: " + name;
+}
+
+// --- Buzzer Logic ---
+
+function pressBuzzer() {
+    if (!db || !gameState.myTeamId) return;
+
+    // First one to set it wins
+    db.ref(`games/${gameState.gameId}/buzzer`).transaction((currentData) => {
+        if (currentData === null || currentData.teamId === null) {
+            return { teamId: gameState.myTeamId };
+        }
+        return; // Don't change if someone else already buzzed
+    });
+}
+
+function handleBuzzerTrigger(teamId) {
+    gameState.buzzerWinner = teamId;
+    const winner = gameState.teams.find(t => t.id === teamId);
+
+    if (gameState.role === 'host') {
+        const alert = document.getElementById('buzzer-alert');
+        const nameEl = document.getElementById('buzzer-winner-name');
+        if (winner) {
+            nameEl.innerText = winner.name;
+            alert.classList.remove('hidden');
+            renderScoreboard();
+        }
+    } else {
+        const btn = document.getElementById('buzzer-btn');
+        const status = document.getElementById('buzzer-status');
+        if (gameState.myTeamId === teamId) {
+            status.innerText = "YOU BUZZED!";
+            status.style.color = "#ffd700";
+        } else {
+            status.innerText = `${winner ? winner.name : 'Someone'} buzzed!`;
+            status.style.color = "#ff4d4d";
+        }
+        btn.classList.add('disabled');
+    }
+}
+
+function resetBuzzer() {
+    if (db) {
+        db.ref(`games/${gameState.gameId}/buzzer`).set(null);
+    }
+}
+
+function clearBuzzerUI() {
+    gameState.buzzerWinner = null;
+    if (gameState.role === 'host') {
+        document.getElementById('buzzer-alert').classList.add('hidden');
+        renderScoreboard();
+    } else {
+        const btn = document.getElementById('buzzer-btn');
+        const status = document.getElementById('buzzer-status');
+        if (btn) btn.classList.remove('disabled');
+        if (status) {
+            status.innerText = "Ready...";
+            status.style.color = "white";
+        }
+    }
+}
+
+// --- Scoring & Finalization ---
 
 function resetScores() {
-    if (confirm("Are you sure you want to reset scores to 0?")) {
-        gameState.teams.forEach(t => t.score = 0);
-        renderScoreboard();
-        saveGame();
+    if (confirm("Reset all team scores for this game?")) {
+        gameState.teams.forEach(t => {
+            if (db) db.ref(`games/${gameState.gameId}/teams/${t.id}/score`).set(0);
+        });
     }
 }
 
 function newGame() {
-    if (confirm("End current game and start over?")) {
-        gameState = { teams: [], history: [] };
-        localStorage.removeItem('christmasGame');
+    if (confirm("Start a completely new game? All current teams will be removed.")) {
+        if (db) db.ref(`games/${gameState.gameId}`).set(null);
         window.location.reload();
     }
 }
 
-function saveGame() {
-    localStorage.setItem('christmasGame', JSON.stringify(gameState));
-}
-
-/* --- Celebration Logic --- */
-
 function finishGame() {
-    // Calculate Winner
-    if (gameState.teams.length === 0) return;
-
-    let maxScore = -Infinity;
-    gameState.teams.forEach(t => {
-        if (t.score > maxScore) maxScore = t.score;
-    });
-
-    // Find all teams with max score (handle ties)
+    const maxScore = Math.max(...gameState.teams.map(t => t.score));
     const winners = gameState.teams.filter(t => t.score === maxScore);
 
-    // Update Winner Screen
     const winnerNameEl = document.getElementById('winner-name');
     const winnerScoreEl = document.getElementById('winner-score');
 
@@ -155,51 +332,41 @@ function finishGame() {
     }
     winnerScoreEl.innerText = `${maxScore} pts!`;
 
-    // Show Screen
     document.getElementById('winner-screen').classList.remove('hidden');
 
-    // Play Voice Announcement
-    const gameName = gameState.gameName || "the game";
-    let winnerText = "";
-    if (winners.length === 1) {
-        winnerText = `${winners[0].name} is the winner of ${gameName}!`;
-    } else {
-        const names = winners.map(w => w.name).join(' and ');
-        winnerText = `${names} are the winners of ${gameName}!`;
-    }
+    // Announcement
+    const gName = gameState.gameName || "the game";
+    const winnerTxt = winners.length === 1 ?
+        `${winners[0].name} is the winner of ${gName}!` :
+        `${winners.map(w => w.name).join(' and ')} are the winners of ${gName}!`;
 
-    // Store text for replay
-    gameState.lastAnnouncement = winnerText;
+    gameState.lastAnnouncement = winnerTxt;
+    speakWinner(winnerTxt);
 
-    speakWinner(winnerText);
-
-    // Play Background Celebration Music
+    // BGM
     const bgMusic = document.getElementById('bg-celebration-music');
     if (bgMusic) {
-        bgMusic.volume = 0.5; // Increased volume from 0.2 to 0.5
+        bgMusic.volume = 0.5;
         bgMusic.currentTime = 0;
-        bgMusic.play().catch(e => {
-            console.log("Background music play failed:", e);
-            // Try playing again without resetting time if it failed
-            bgMusic.play();
-        });
+        bgMusic.play();
     }
 
-    // Start Confetti
     startConfetti();
 }
+
+function saveState() {
+    localStorage.setItem('christmasGame_v2', JSON.stringify({
+        gameName: gameState.gameName
+    }));
+}
+
+// --- Celebration Effects ---
 
 function closeWinnerScreen() {
     isAnnouncing = false;
     document.getElementById('winner-screen').classList.add('hidden');
     stopConfetti();
-
-    // Stop Voice
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-    }
-
-    // Stop Background Music
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     const bgMusic = document.getElementById('bg-celebration-music');
     if (bgMusic) {
         bgMusic.pause();
@@ -207,7 +374,36 @@ function closeWinnerScreen() {
     }
 }
 
-/* --- Simple Confetti Engine --- */
+function playCelebrationAudio() {
+    if (gameState.lastAnnouncement) speakWinner(gameState.lastAnnouncement);
+    const bgMusic = document.getElementById('bg-celebration-music');
+    if (bgMusic && bgMusic.paused) {
+        bgMusic.currentTime = 0;
+        bgMusic.play();
+    }
+}
+
+let isAnnouncing = false;
+function speakWinner(text) {
+    if (!('speechSynthesis' in window)) return;
+    if (!isAnnouncing) window.speechSynthesis.cancel();
+    isAnnouncing = true;
+
+    const voices = window.speechSynthesis.getVoices();
+    let selectedVoice = voices.find(v => v.name.includes("Zira") || v.name.includes("Samantha") || v.name.includes("Female"));
+    if (!selectedVoice) selectedVoice = voices.find(v => v.lang.startsWith('en'));
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    if (selectedVoice) utterance.voice = selectedVoice;
+    utterance.rate = 1.1;
+    utterance.pitch = 1.2;
+    utterance.onend = () => {
+        if (isAnnouncing) setTimeout(() => speakWinner(text), 500);
+    };
+    window.speechSynthesis.speak(utterance);
+}
+
+// --- Confetti Engine ---
 let confettiActive = false;
 let confettiParticles = [];
 const confettiColors = ['#d42426', '#2f5a2e', '#f8b229', '#ffffff', '#ff0000', '#00ff00'];
@@ -217,23 +413,15 @@ function startConfetti() {
     confettiActive = true;
     const canvas = document.getElementById('confetti-canvas');
     if (!canvas) return;
-
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-
     confettiParticles = [];
-    for (let i = 0; i < 150; i++) {
-        confettiParticles.push(createParticle());
-    }
-
+    for (let i = 0; i < 150; i++) confettiParticles.push(createParticle());
     requestAnimationFrame(renderConfetti);
 }
 
-function stopConfetti() {
-    confettiActive = false;
-}
-
+function stopConfetti() { confettiActive = false; }
 function createParticle() {
     return {
         x: Math.random() * window.innerWidth,
@@ -245,15 +433,11 @@ function createParticle() {
         spin: Math.random() * 0.2 - 0.1
     };
 }
-
 function renderConfetti() {
     if (!confettiActive) return;
-
     const canvas = document.getElementById('confetti-canvas');
     const ctx = canvas.getContext('2d');
-
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     confettiParticles.forEach(p => {
         ctx.save();
         ctx.translate(p.x, p.y);
@@ -261,94 +445,9 @@ function renderConfetti() {
         ctx.fillStyle = p.color;
         ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
         ctx.restore();
-
         p.y += p.speed;
         p.angle += p.spin;
-
-        if (p.y > canvas.height) {
-            p.y = -20;
-            p.x = Math.random() * canvas.width;
-        }
+        if (p.y > canvas.height) { p.y = -20; p.x = Math.random() * canvas.width; }
     });
-
     requestAnimationFrame(renderConfetti);
 }
-
-window.addEventListener('resize', () => {
-    const canvas = document.getElementById('confetti-canvas');
-    if (canvas) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-});
-
-function playCelebrationAudio() {
-    if (gameState.lastAnnouncement) {
-        speakWinner(gameState.lastAnnouncement);
-    }
-
-    const bgMusic = document.getElementById('bg-celebration-music');
-    if (bgMusic && bgMusic.paused) {
-        bgMusic.currentTime = 0;
-        bgMusic.play().catch(e => console.log("Manual music play failed:", e));
-    }
-}
-
-/* --- Voice Announcement Logic --- */
-
-/* --- Voice Announcement Logic --- */
-
-let isAnnouncing = false;
-
-function speakWinner(text) {
-    // If not supported, log and return
-    if (!('speechSynthesis' in window)) {
-        console.log("TTS not supported.");
-        return;
-    }
-
-    // Stop any current speech before starting new loop
-    if (!isAnnouncing) {
-        window.speechSynthesis.cancel();
-    }
-    isAnnouncing = true;
-
-    const voices = window.speechSynthesis.getVoices();
-    // Heuristic: Prefer Female, then Zira/Samantha/Google US
-    let selectedVoice = voices.find(v =>
-        v.name.includes("Zira") ||
-        v.name.includes("Samantha") ||
-        (v.name.includes("Google") && v.name.includes("English")) ||
-        v.name.includes("Female")
-    );
-
-    // Fallback to any English voice
-    if (!selectedVoice) {
-        selectedVoice = voices.find(v => v.lang.startsWith('en'));
-    }
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    if (selectedVoice) utterance.voice = selectedVoice;
-
-    // Enthusiastic settings
-    utterance.rate = 1.1;  // Faster
-    utterance.pitch = 1.2; // Higher pitch
-    utterance.volume = 1;
-
-    // Loop Logic: When done, if still announcing, speak again
-    utterance.onend = () => {
-        if (isAnnouncing) {
-            // Small pause between loops for breath
-            setTimeout(() => {
-                if (isAnnouncing) speakWinner(text);
-            }, 500);
-        }
-    };
-
-    window.speechSynthesis.speak(utterance);
-}
-
-// Ensure voices are loaded (required for Chrome)
-window.speechSynthesis.onvoiceschanged = () => {
-    // Voices loaded
-};
