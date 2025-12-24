@@ -656,50 +656,83 @@ h1 {
         opacity: 0.6;
     }
 }
+
 /* Bioscope Round Styles */
 .bioscope-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(2, 1fr);
-    gap: 20px;
+    gap: 15px;
     margin: 20px 0;
-    max-height: 60vh;
+    max-height: 55vh;
 }
+
+.round-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.round-btn {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.round-btn.active {
+    background: var(--christmas-gold);
+    color: #b3000c;
+    font-weight: bold;
+    border-color: var(--christmas-gold);
+}
+
 .bio-frame {
     background: rgba(255, 255, 255, 0.05);
     border: 2px dashed rgba(255, 255, 255, 0.2);
-    border-radius: 15px;
+    border-radius: 12px;
     overflow: hidden;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
+    aspect-ratio: 1;
     transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
 .bio-frame.revealed {
     border: 3px solid var(--christmas-gold);
     box-shadow: 0 0 20px var(--christmas-gold);
     animation: sweepIn 0.8s ease-out forwards;
 }
+
 .bio-frame img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
+
 .round-mode-selector {
     display: flex;
     gap: 10px;
     justify-content: center;
 }
+
 .round-mode-selector .btn-secondary.active {
     background: var(--christmas-gold);
     color: #b3000c;
 }
+
 @keyframes sweepIn {
     from {
         opacity: 0;
         transform: translateX(-50px) scale(0.9);
     }
+
     to {
         opacity: 1;
         transform: translateX(0) scale(1);

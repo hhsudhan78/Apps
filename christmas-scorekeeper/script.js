@@ -34,13 +34,19 @@ let gameState = {
     teamConfigs: {},
     teams: [],
     gameName: "",
-    gameMode: 'normal', // 'normal' or 'bioscope'
-    bioscopeImages: ["", "", "", ""],
+    gameMode: 'normal',
+    bioscopeRound: 1, // Current active round (1-10)
     bioscopeRevealedCount: 0,
     lastAnnouncement: "",
     myTeamId: null,
     buzzerWinner: null
 };
+
+// Puzzle Configuration (Expected paths in /bioscope/roundX/Y.jpg)
+const bioscopePuzzles = Array.from({ length: 10 }, (_, i) => ({
+    round: i + 1,
+    images: Array.from({ length: 6 }, (_, j) => `bioscope/round${i + 1}/${j + 1}.jpg`)
+}));
 
 // --- Initialization ---
 
@@ -52,6 +58,7 @@ window.onload = () => {
 
         if (gameState.role === 'host') {
             generateInviteQR();
+            initBioscopeRoundSelector();
             // Initialize defaults in Firebase if it's a new host session
             if (db) {
                 const gameRef = db.ref('games/' + gameState.gameId);
@@ -186,7 +193,7 @@ function setupFirebaseSync() {
     gameRef.child('bioscope').on('value', (snapshot) => {
         const bioData = snapshot.val();
         if (bioData) {
-            gameState.bioscopeImages = bioData.images || ["", "", "", ""];
+            gameState.bioscopeRound = bioData.round || 1;
             gameState.bioscopeRevealedCount = bioData.revealedCount || 0;
             renderBioscope();
         }
