@@ -59,6 +59,10 @@
 
         <!-- Game Screen -->
         <div id="game-screen" class="screen hidden">
+            <div class="game-header">
+                <input type="text" id="game-name-input" placeholder="Enter Game Name (e.g. Trivia)"
+                    oninput="updateGameName(this.value)">
+            </div>
             <div id="scoreboard" class="scoreboard-grid">
                 <!-- Team Cards Injected Here -->
             </div>

@@ -158,6 +158,36 @@ h1 {
     font-size: 1.1rem;
 }
 
+/* Game Name Input */
+.game-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+#game-name-input {
+    background: rgba(0, 0, 0, 0.2);
+    border: 2px solid var(--christmas-gold);
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 2rem;
+    font-family: 'Mountains of Christmas', cursive;
+    color: var(--christmas-gold);
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+#game-name-input:focus {
+    background: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 15px var(--christmas-gold);
+}
+
+#game-name-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
 /* Game Board Grid */
 .scoreboard-grid {
     display: grid;

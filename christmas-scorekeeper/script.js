@@ -1,6 +1,7 @@
 let gameState = {
     teams: [],
-    history: []
+    history: [],
+    gameName: ""
 };
 
 // Default team names
@@ -10,13 +11,16 @@ let currentTeamCount = 3;
 
 document.addEventListener('DOMContentLoaded', () => {
     renderTeamInputs();
-    
+
     // Check for saved game
     const saved = localStorage.getItem('christmasGame');
     if (saved) {
-        if(confirm("Resume previous game?")) {
+        if (confirm("Resume previous game?")) {
             gameState = JSON.parse(saved);
             startGame(true);
+            if (gameState.gameName) {
+                document.getElementById('game-name-input').value = gameState.gameName;
+            }
         }
     }
 });
@@ -33,7 +37,7 @@ function selectTeamCount(count) {
 function renderTeamInputs() {
     const container = document.getElementById('team-names-container');
     container.innerHTML = '';
-    
+
     for (let i = 0; i < currentTeamCount; i++) {
         const input = document.createElement('input');
         input.type = 'text';
@@ -57,12 +61,13 @@ function startGame(isResumed = false) {
             });
         }
         gameState.history = [];
+        gameState.gameName = "";
     }
 
     document.getElementById('setup-screen').classList.remove('active');
     document.getElementById('setup-screen').classList.add('hidden');
     document.getElementById('game-screen').classList.remove('hidden');
-    
+
     // Small delay to allow display:block to apply before opacity transition
     setTimeout(() => {
         document.getElementById('game-screen').classList.add('active');
@@ -94,6 +99,11 @@ function renderScoreboard() {
     });
 }
 
+function updateGameName(name) {
+    gameState.gameName = name;
+    saveGame();
+}
+
 function updateScore(teamIndex, points) {
     gameState.teams[teamIndex].score += points;
     renderScoreboard();
@@ -101,7 +111,7 @@ function updateScore(teamIndex, points) {
 }
 
 function resetScores() {
-    if(confirm("Are you sure you want to reset scores to 0?")) {
+    if (confirm("Are you sure you want to reset scores to 0?")) {
         gameState.teams.forEach(t => t.score = 0);
         renderScoreboard();
         saveGame();
@@ -109,7 +119,7 @@ function resetScores() {
 }
 
 function newGame() {
-    if(confirm("End current game and start over?")) {
+    if (confirm("End current game and start over?")) {
         gameState = { teams: [], history: [] };
         localStorage.removeItem('christmasGame');
         window.location.reload();
