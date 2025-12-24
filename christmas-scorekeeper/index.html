@@ -22,7 +22,7 @@
 <body>
     <div id="debug-version"
         style="position:fixed; bottom:5px; right:5px; font-size:8px; color:rgba(255,255,255,0.3); z-index:999;">
-        v2.1-pushed</div>
+        v2.2-pushed</div>
     <div class="snowflakes" aria-hidden="true">
         <!-- ... snowflakes ... -->
         <div class="snowflake">❅</div>
@@ -96,7 +96,12 @@
                     <!-- This will now briefly show joined status -->
                 </div>
 
-                <button class="btn-primary large" id="start-btn" onclick="startGame()">Start The Party! 🎁</button>
+                <div class="setup-controls" style="margin-top: 30px;">
+                    <button class="btn-primary large" id="start-btn" onclick="startGame()">Start The Party! 🎁</button>
+                    <button class="btn-secondary" onclick="resetEntireGame()"
+                        style="margin-top:15px; width:100%; font-size:12px; opacity:0.6;">🛠️ Master Reset (Clear all
+                        data)</button>
+                </div>
             </div>
         </div>
 

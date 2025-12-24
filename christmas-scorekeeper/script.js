@@ -229,7 +229,26 @@ function selectTeamCount(count) {
     }
 
     if (db) {
-        db.ref('games/' + gameState.gameId + '/selectedTeamCount').set(count);
+        // When count changes, it's safer to clear the previously joined teams
+        // to avoid "All teams full" errors on phones.
+        db.ref('games/' + gameState.gameId).update({
+            selectedTeamCount: count,
+            teams: null,
+            buzzer: null
+        });
+    }
+}
+
+function resetEntireGame() {
+    if (confirm("This will RESET everything: joined teams, scores, and names. Proceed?")) {
+        if (db) {
+            db.ref('games/' + gameState.gameId).set({
+                selectedTeamCount: gameState.selectedTeamCount,
+                gameName: gameState.gameName || "",
+                teamConfigs: gameState.teamConfigs || {}
+            });
+            alert("Game Reset Complete. Guests can now join fresh!");
+        }
     }
 }
 
@@ -370,8 +389,12 @@ function updatePlayerUI() {
         if (!hasOptions) {
             selection.innerHTML = `
                 <div class="waiting-msg">
-                    <p>No available teams found!</p>
-                    <p style="font-size:12px; margin-top:10px;">(Wait for host or try refreshing)</p>
+                    <p>All teams are currently full!</p>
+                    <p style="font-size:12px; margin-top:10px; opacity:0.7;">
+                        Currently seeing ${gameState.teams.length} teams in database. 
+                        Target slots: ${gameState.selectedTeamCount}.
+                    </p>
+                    <p style="font-size:12px; margin-top:10px;">(Ask host to "Reset Joined Teams")</p>
                     <button class="btn-secondary" onclick="location.reload()" style="font-size:12px; margin-top:10px;">Refresh Page</button>
                 </div>`;
         }
