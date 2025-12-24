@@ -158,10 +158,20 @@ function finishGame() {
     // Show Screen
     document.getElementById('winner-screen').classList.remove('hidden');
 
-    // Play Audio
-    const audio = document.getElementById('celebration-audio');
-    audio.currentTime = 0;
-    audio.play().catch(e => console.log("Audio play failed (user interaction needed first):", e));
+    // Play Voice Announcement
+    const gameName = gameState.gameName || "the game";
+    let winnerText = "";
+    if (winners.length === 1) {
+        winnerText = `${winners[0].name} is the winner of ${gameName}!`;
+    } else {
+        const names = winners.map(w => w.name).join(' and ');
+        winnerText = `${names} are the winners of ${gameName}!`;
+    }
+
+    // Store text for replay
+    gameState.lastAnnouncement = winnerText;
+
+    speakWinner(winnerText);
 
     // Start Confetti
     startConfetti();
@@ -170,7 +180,9 @@ function finishGame() {
 function closeWinnerScreen() {
     document.getElementById('winner-screen').classList.add('hidden');
     stopConfetti();
-    document.getElementById('celebration-audio').pause();
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+    }
 }
 
 /* --- Simple Confetti Engine --- */
@@ -249,9 +261,22 @@ window.addEventListener('resize', () => {
 });
 
 function playCelebrationAudio() {
-    const audio = document.getElementById('celebration-audio');
-    if(audio) {
-        audio.currentTime = 0;
-        audio.play().catch(e => console.log("Audio play failed:", e));
+    if (gameState.lastAnnouncement) {
+        speakWinner(gameState.lastAnnouncement);
+    }
+}
+
+/* --- Voice Announcement Logic --- */
+
+function speakWinner(text) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // Stop any previous speech
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1;
+        utterance.pitch = 1.1; // Slightly higher pitch for excitement
+        utterance.volume = 1;
+        window.speechSynthesis.speak(utterance);
+    } else {
+        console.log("TTS not supported in this browser.");
     }
 }
