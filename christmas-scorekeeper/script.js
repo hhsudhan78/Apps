@@ -10,7 +10,7 @@
 const firebaseConfig = {
     apiKey: "AIzaSyBBiFly_Ua5wY-JUXKl9noE0mtYfY-CX7Y",
     authDomain: "christmas-scorer.firebaseapp.com",
-    databaseURL: "https://christmas-scorer-default-rtdb.firebaseio.com",
+    databaseURL: "https://christmas-scorer-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "christmas-scorer",
     storageBucket: "christmas-scorer.firebasestorage.app",
     messagingSenderId: "118796280192",
@@ -209,11 +209,29 @@ function updateHostUI() {
 }
 
 function startGame() {
-    document.getElementById('setup-screen').classList.replace('active', 'hidden');
-    document.getElementById('game-screen').classList.add('active');
-    document.getElementById('game-screen').classList.remove('hidden');
-    renderScoreboard();
-    saveState();
+    try {
+        console.log("Attempting to start game. Teams:", gameState.teams.length);
+
+        const setupScreen = document.getElementById('setup-screen');
+        const gameScreen = document.getElementById('game-screen');
+
+        if (!setupScreen || !gameScreen) {
+            throw new Error("Screen elements missing from HTML!");
+        }
+
+        setupScreen.classList.remove('active');
+        setupScreen.classList.add('hidden');
+
+        gameScreen.classList.remove('hidden');
+        gameScreen.classList.add('active');
+
+        renderScoreboard();
+        saveState();
+        console.log("Game started successfully.");
+    } catch (e) {
+        console.error("Critical Start Error:", e);
+        alert("Oops! Game couldn't start: " + e.message);
+    }
 }
 
 function renderScoreboard() {
