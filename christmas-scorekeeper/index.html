@@ -22,7 +22,7 @@
 <body>
     <div id="debug-version"
         style="position:fixed; bottom:5px; right:5px; font-size:8px; color:rgba(255,255,255,0.3); z-index:999;">
-        v2.7-pushed</div>
+        v2.8-pushed</div>
     <div class="snowflakes" aria-hidden="true">
         <!-- ... snowflakes ... -->
         <div class="snowflake">❅</div>
@@ -158,8 +158,8 @@
                 </div>
             </div>
             <div id="bioscope-round-info" class="hidden"
-                style="font-family: 'Mountains of Christmas'; font-size: 2rem; color: var(--christmas-gold); text-align: center; margin-bottom: 10px;">
-                Round: <span id="current-round-number">1</span>
+                style="font-family: 'Mountains of Christmas'; font-size: 2.5rem; color: var(--christmas-gold); text-align: center; margin-bottom: 10px; text-shadow: 0 0 10px rgba(0,0,0,0.5);">
+                Round: <span id="current-round-number">1 / 10</span>
             </div>
 
             <div id="bioscope-display" class="bioscope-grid hidden">
@@ -176,8 +176,9 @@
             </div>
 
             <div class="controls-bar glass">
-                <button id="reveal-btn" class="btn-primary hidden" onclick="revealNextImage()">🔍 Reveal Next
-                    🎬</button>
+                <button id="reveal-btn" class="btn-primary hidden" onclick="revealNextImage()">🔍 Reveal Next</button>
+                <button id="next-round-btn" class="btn-secondary hidden" onclick="nextBioscopeRound()"
+                    style="background: var(--christmas-gold); color: #b3000c;">Next Round ➡️</button>
                 <button class="btn-secondary" onclick="resetScores()">Reset Scores</button>
                 <button class="btn-primary" onclick="finishGame()">🏆 Finish Game</button>
                 <button class="btn-secondary" onclick="newGame()">New Game</button>

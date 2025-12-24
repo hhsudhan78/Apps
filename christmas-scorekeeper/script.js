@@ -369,8 +369,15 @@ function renderBioscope() {
     // Update Round Counter on TV
     const roundNumEl = document.getElementById('current-round-number');
     const roundInfoEl = document.getElementById('bioscope-round-info');
-    if (roundNumEl) roundNumEl.innerText = gameState.bioscopeRound;
+    if (roundNumEl) roundNumEl.innerText = `${gameState.bioscopeRound} / 10`;
     if (roundInfoEl) roundInfoEl.classList.remove('hidden');
+
+    // Update Host Next Round Button Visibility
+    const nextRoundBtn = document.getElementById('next-round-btn');
+    if (nextRoundBtn) {
+        const isBio = gameState.gameMode === 'bioscope';
+        nextRoundBtn.classList.toggle('hidden', !isBio || gameState.bioscopeRound >= 10);
+    }
 
     for (let i = 1; i <= 6; i++) {
         const frame = document.getElementById(`frame-${i}`);
@@ -404,13 +411,20 @@ function initBioscopeRoundSelector() {
     }
 }
 
+function nextBioscopeRound() {
+    if (gameState.bioscopeRound < 10) {
+        setBioscopeRound(gameState.bioscopeRound + 1);
+        resetBuzzer(); // Clear any existing buzz for the new round
+    }
+}
+
 function startGame() {
     try {
         console.log("Attempting to start game. Teams:", gameState.teams.length);
 
         if (gameState.gameMode === 'bioscope' && db) {
-            // Reset revelation for the selected round
-            db.ref('games/' + gameState.gameId + '/bioscope/revealedCount').set(0);
+            // Default to Round 1 on freshly started party
+            setBioscopeRound(1);
         }
 
         const setupScreen = document.getElementById('setup-screen');
