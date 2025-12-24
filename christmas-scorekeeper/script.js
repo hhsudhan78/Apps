@@ -187,8 +187,8 @@ function generateInviteQR() {
         if (typeof QRCode !== 'undefined') {
             new QRCode(qrcodeContainer, {
                 text: joinUrl,
-                width: 128,
-                height: 128
+                width: 300,
+                height: 300
             });
         } else {
             qrcodeContainer.innerHTML = "<p style='color:red'>QR Code Library load failure. Please refresh.</p>";
