@@ -143,21 +143,21 @@ function finishGame() {
 
     // Find all teams with max score (handle ties)
     const winners = gameState.teams.filter(t => t.score === maxScore);
-    
+
     // Update Winner Screen
     const winnerNameEl = document.getElementById('winner-name');
     const winnerScoreEl = document.getElementById('winner-score');
-    
+
     if (winners.length === 1) {
         winnerNameEl.innerText = winners[0].name;
     } else {
         winnerNameEl.innerText = winners.map(w => w.name).join(' & ');
     }
-    winnerScoreEl.innerText = \\ pts!\;
+    winnerScoreEl.innerText = `${maxScore} pts!`;
 
     // Show Screen
     document.getElementById('winner-screen').classList.remove('hidden');
-    
+
     // Play Audio
     const audio = document.getElementById('celebration-audio');
     audio.currentTime = 0;
@@ -182,17 +182,17 @@ function startConfetti() {
     if (confettiActive) return;
     confettiActive = true;
     const canvas = document.getElementById('confetti-canvas');
-    if(!canvas) return;
-    
+    if (!canvas) return;
+
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
     confettiParticles = [];
-    for(let i=0; i<150; i++) {
+    for (let i = 0; i < 150; i++) {
         confettiParticles.push(createParticle());
     }
-    
+
     requestAnimationFrame(renderConfetti);
 }
 
@@ -214,35 +214,35 @@ function createParticle() {
 
 function renderConfetti() {
     if (!confettiActive) return;
-    
+
     const canvas = document.getElementById('confetti-canvas');
     const ctx = canvas.getContext('2d');
-    
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
     confettiParticles.forEach(p => {
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate(p.angle);
         ctx.fillStyle = p.color;
-        ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
         ctx.restore();
-        
+
         p.y += p.speed;
         p.angle += p.spin;
-        
+
         if (p.y > canvas.height) {
             p.y = -20;
             p.x = Math.random() * canvas.width;
         }
     });
-    
+
     requestAnimationFrame(renderConfetti);
 }
 
 window.addEventListener('resize', () => {
     const canvas = document.getElementById('confetti-canvas');
-    if(canvas) {
+    if (canvas) {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
     }
