@@ -181,7 +181,9 @@ function updateHostUI() {
         gameState.teams.forEach(team => {
             container.innerHTML += `<div class="team-slot">${team.name || '<i>Joining...</i>'}</div>`;
         });
-        startBtn.disabled = gameState.teams.length < 2;
+        // Allow starting with 1 team (useful for testing or small groups)
+        startBtn.disabled = gameState.teams.length < 1;
+        console.log("Host UI Updated. Teams joined:", gameState.teams.length, "Button disabled:", startBtn.disabled);
     }
 
     renderScoreboard();
