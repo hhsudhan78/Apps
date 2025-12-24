@@ -426,7 +426,8 @@ function startGame() {
         console.log("Game started successfully.");
     } catch (e) {
         console.error("Critical Start Error:", e);
-        alert("Oops! Game couldn't start: " + e.message);
+        // Show a more helpful message
+        alert("Oops! Game couldn't start. Error: " + (e.message || e));
     }
 }
 
