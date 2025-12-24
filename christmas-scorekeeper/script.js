@@ -8,13 +8,13 @@
 // Firebase Configuration - Placeholder
 // USER: Replace this once you have your Firebase config!
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyBBiFly_Ua5wY-JUXKl9noE0mtYfY-CX7Y",
+    authDomain: "christmas-scorer.firebaseapp.com",
+    databaseURL: "https://christmas-scorer-default-rtdb.firebaseio.com",
+    projectId: "christmas-scorer",
+    storageBucket: "christmas-scorer.firebasestorage.app",
+    messagingSenderId: "118796280192",
+    appId: "1:118796280192:web:9fabe18fb5995a2e9d2165"
 };
 
 // Initialize Firebase (Compat)
