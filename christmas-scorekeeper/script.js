@@ -178,6 +178,7 @@ function finishGame() {
 }
 
 function closeWinnerScreen() {
+    isAnnouncing = false;
     document.getElementById('winner-screen').classList.add('hidden');
     stopConfetti();
     if ('speechSynthesis' in window) {
@@ -268,15 +269,59 @@ function playCelebrationAudio() {
 
 /* --- Voice Announcement Logic --- */
 
+/* --- Voice Announcement Logic --- */
+
+let isAnnouncing = false;
+
 function speakWinner(text) {
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // Stop any previous speech
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1;
-        utterance.pitch = 1.1; // Slightly higher pitch for excitement
-        utterance.volume = 1;
-        window.speechSynthesis.speak(utterance);
-    } else {
-        console.log("TTS not supported in this browser.");
+    // If not supported, log and return
+    if (!('speechSynthesis' in window)) {
+        console.log("TTS not supported.");
+        return;
     }
+
+    // Stop any current speech before starting new loop
+    if (!isAnnouncing) {
+        window.speechSynthesis.cancel();
+    }
+    isAnnouncing = true;
+
+    const voices = window.speechSynthesis.getVoices();
+    // Heuristic: Prefer Female, then Zira/Samantha/Google US
+    let selectedVoice = voices.find(v =>
+        v.name.includes("Zira") ||
+        v.name.includes("Samantha") ||
+        (v.name.includes("Google") && v.name.includes("English")) ||
+        v.name.includes("Female")
+    );
+
+    // Fallback to any English voice
+    if (!selectedVoice) {
+        selectedVoice = voices.find(v => v.lang.startsWith('en'));
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    if (selectedVoice) utterance.voice = selectedVoice;
+
+    // Enthusiastic settings
+    utterance.rate = 1.1;  // Faster
+    utterance.pitch = 1.2; // Higher pitch
+    utterance.volume = 1;
+
+    // Loop Logic: When done, if still announcing, speak again
+    utterance.onend = () => {
+        if (isAnnouncing) {
+            // Small pause between loops for breath
+            setTimeout(() => {
+                if (isAnnouncing) speakWinner(text);
+            }, 500);
+        }
+    };
+
+    window.speechSynthesis.speak(utterance);
 }
+
+// Ensure voices are loaded (required for Chrome)
+window.speechSynthesis.onvoiceschanged = () => {
+    // Voices loaded
+};
