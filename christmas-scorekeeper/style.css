@@ -6,7 +6,7 @@
     --bg-gradient: linear-gradient(135deg, #1a2a1a 0%, #2f5a2e 100%);
     --glass-bg: rgba(255, 255, 255, 0.1);
     --glass-border: rgba(255, 255, 255, 0.2);
-    --text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    --text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 * {
@@ -24,7 +24,9 @@ body {
     padding: 20px;
 }
 
-h1, h2, .team-name {
+h1,
+h2,
+.team-name {
     font-family: 'Mountains of Christmas', cursive;
     font-weight: 700;
 }
@@ -52,14 +54,20 @@ h1 {
 }
 
 /* Glassmorphism Card Style */
-.glass {
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+.card {
+    background: rgba(255, 255, 255, 0.15);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
     padding: 2rem;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 20;
+}
+
+.glass {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .screen {
@@ -67,14 +75,14 @@ h1 {
 }
 
 .screen.hidden {
-    display: none;
+    display: none !important;
     opacity: 0;
     transform: translateY(20px);
 }
 
 .screen.active {
-    display: block; /* changed from flex to block to fix layout issues */
-    opacity: 1;
+    display: block !important;
+    opacity: 1 !important;
     transform: translateY(0);
 }
 
@@ -98,7 +106,7 @@ h1 {
 }
 
 .team-count-btn {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     border: 2px solid transparent;
     color: white;
     width: 50px;
@@ -109,7 +117,8 @@ h1 {
     transition: all 0.2s;
 }
 
-.team-count-btn.active, .team-count-btn:hover {
+.team-count-btn.active,
+.team-count-btn:hover {
     background: var(--christmas-red);
     border-color: var(--christmas-gold);
     transform: scale(1.1);
@@ -121,13 +130,15 @@ h1 {
     margin-bottom: 10px;
     border-radius: 10px;
     border: none;
-    background: rgba(255,255,255,0.9);
+    background: rgba(255, 255, 255, 0.9);
     font-size: 1rem;
     color: #333;
 }
 
 /* Buttons */
-.btn-primary, .btn-secondary, .score-btn {
+.btn-primary,
+.btn-secondary,
+.score-btn {
     border: none;
     cursor: pointer;
     font-family: 'Mountains of Christmas', cursive;
@@ -151,7 +162,7 @@ h1 {
 }
 
 .btn-secondary {
-    background: rgba(0,0,0,0.3);
+    background: rgba(0, 0, 0, 0.3);
     color: white;
     padding: 10px 20px;
     border-radius: 10px;
@@ -197,15 +208,16 @@ h1 {
 }
 
 .score-card {
-    background: #fff; /* Fallback */
-    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,240,240,0.9) 100%);
+    background: #fff;
+    /* Fallback */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 240, 240, 0.9) 100%);
     color: #333;
     border-radius: 20px;
     padding: 1.5rem;
     text-align: center;
     position: relative;
     border: 4px solid var(--christmas-gold);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .score-card h3 {
@@ -236,9 +248,19 @@ h1 {
     color: white;
 }
 
-.btn-add { background: var(--christmas-green); }
-.btn-sub { background: var(--christmas-red); }
-.btn-bonus { background: var(--christmas-gold); grid-column: span 3; color: #333; }
+.btn-add {
+    background: var(--christmas-green);
+}
+
+.btn-sub {
+    background: var(--christmas-red);
+}
+
+.btn-bonus {
+    background: var(--christmas-gold);
+    grid-column: span 3;
+    color: #333;
+}
 
 .controls-bar {
     display: flex;
@@ -262,25 +284,80 @@ h1 {
     animation-iteration-count: infinite, infinite;
     animation-play-state: running, running;
 }
-@keyframes snowflakes-fall { 
-    0% { top: -10%; } 
-    100% { top: 100%; }
+
+@keyframes snowflakes-fall {
+    0% {
+        top: -10%;
+    }
+
+    100% {
+        top: 100%;
+    }
 }
+
 @keyframes snowflakes-shake {
-    0% { transform: translateX(0px); }
-    50% { transform: translateX(80px); }
-    100% { transform: translateX(0px); }
+    0% {
+        transform: translateX(0px);
+    }
+
+    50% {
+        transform: translateX(80px);
+    }
+
+    100% {
+        transform: translateX(0px);
+    }
 }
-.snowflake:nth-of-type(1) { left: 1%; animation-delay: 0s, 0s; }
-.snowflake:nth-of-type(2) { left: 10%; animation-delay: 1s, 1s; }
-.snowflake:nth-of-type(3) { left: 20%; animation-delay: 6s, .5s; }
-.snowflake:nth-of-type(4) { left: 30%; animation-delay: 4s, 2s; }
-.snowflake:nth-of-type(5) { left: 40%; animation-delay: 2s, 2s; }
-.snowflake:nth-of-type(6) { left: 50%; animation-delay: 8s, 3s; }
-.snowflake:nth-of-type(7) { left: 60%; animation-delay: 6s, 2s; }
-.snowflake:nth-of-type(8) { left: 70%; animation-delay: 2.5s, 1s; }
-.snowflake:nth-of-type(9) { left: 80%; animation-delay: 1s, 0s; }
-.snowflake:nth-of-type(10) { left: 90%; animation-delay: 3s, 1.5s; }
+
+.snowflake:nth-of-type(1) {
+    left: 1%;
+    animation-delay: 0s, 0s;
+}
+
+.snowflake:nth-of-type(2) {
+    left: 10%;
+    animation-delay: 1s, 1s;
+}
+
+.snowflake:nth-of-type(3) {
+    left: 20%;
+    animation-delay: 6s, .5s;
+}
+
+.snowflake:nth-of-type(4) {
+    left: 30%;
+    animation-delay: 4s, 2s;
+}
+
+.snowflake:nth-of-type(5) {
+    left: 40%;
+    animation-delay: 2s, 2s;
+}
+
+.snowflake:nth-of-type(6) {
+    left: 50%;
+    animation-delay: 8s, 3s;
+}
+
+.snowflake:nth-of-type(7) {
+    left: 60%;
+    animation-delay: 6s, 2s;
+}
+
+.snowflake:nth-of-type(8) {
+    left: 70%;
+    animation-delay: 2.5s, 1s;
+}
+
+.snowflake:nth-of-type(9) {
+    left: 80%;
+    animation-delay: 1s, 0s;
+}
+
+.snowflake:nth-of-type(10) {
+    left: 90%;
+    animation-delay: 3s, 1.5s;
+}
 
 /* Winner Screen Overlay */
 .overlay {
@@ -334,14 +411,32 @@ h1 {
 }
 
 @keyframes winnerPulse {
-    0% { transform: scale(1); text-shadow: 0 0 10px rgba(248, 178, 41, 0.5); }
-    50% { transform: scale(1.1); text-shadow: 0 0 30px rgba(248, 178, 41, 1); }
-    100% { transform: scale(1); text-shadow: 0 0 10px rgba(248, 178, 41, 0.5); }
+    0% {
+        transform: scale(1);
+        text-shadow: 0 0 10px rgba(248, 178, 41, 0.5);
+    }
+
+    50% {
+        transform: scale(1.1);
+        text-shadow: 0 0 30px rgba(248, 178, 41, 1);
+    }
+
+    100% {
+        transform: scale(1);
+        text-shadow: 0 0 10px rgba(248, 178, 41, 0.5);
+    }
 }
 
 @keyframes popIn {
-    from { opacity: 0; transform: scale(0.5); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 /* --- Interactive Features CSS --- */
@@ -384,7 +479,7 @@ h1 {
     border-radius: 50%;
     background: radial-gradient(circle, #ff4d4d 0%, #b30000 100%);
     border: 8px solid #800000;
-    box-shadow: 0 10px 0 #660000, 0 15px 20px rgba(0,0,0,0.4);
+    box-shadow: 0 10px 0 #660000, 0 15px 20px rgba(0, 0, 0, 0.4);
     cursor: pointer;
     transition: all 0.1s;
     display: flex;
@@ -395,7 +490,7 @@ h1 {
 
 .buzzer-btn:active {
     transform: translateY(10px);
-    box-shadow: 0 0 0 #660000, 0 5px 10px rgba(0,0,0,0.4);
+    box-shadow: 0 0 0 #660000, 0 5px 10px rgba(0, 0, 0, 0.4);
 }
 
 .buzzer-btn.disabled {
@@ -409,7 +504,7 @@ h1 {
     color: white;
     font-size: 2.5rem;
     font-weight: 800;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .team-display {
@@ -439,14 +534,35 @@ h1 {
 }
 
 @keyframes bounceIn {
-    0% { transform: scale(0.3); opacity: 0; }
-    50% { transform: scale(1.05); opacity: 1; }
-    70% { transform: scale(0.9); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+
+    70% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 @keyframes pulse {
-    0% { opacity: 0.6; }
-    50% { opacity: 1; }
-    100% { opacity: 0.6; }
+    0% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.6;
+    }
 }

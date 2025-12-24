@@ -5,8 +5,8 @@
  * - Player: Joins via QR, enters team name, acts as a buzzer.
  */
 
-// Firebase Configuration - Placeholder
-// USER: Replace this once you have your Firebase config!
+// Firebase Configuration
+// Integrated with user's keys
 const firebaseConfig = {
     apiKey: "AIzaSyBBiFly_Ua5wY-JUXKl9noE0mtYfY-CX7Y",
     authDomain: "christmas-scorer.firebaseapp.com",
@@ -41,16 +41,24 @@ let gameState = {
 // --- Initialization ---
 
 window.onload = () => {
-    detectRole();
-    setupFirebaseSync();
+    try {
+        detectRole();
+        setupFirebaseSync();
 
-    if (gameState.role === 'host') {
-        generateInviteQR();
-        // Load local game if exists
-        const saved = localStorage.getItem('christmasGame_v2');
-        if (saved) {
-            const data = JSON.parse(saved);
-            gameState.gameName = data.gameName || "";
+        if (gameState.role === 'host') {
+            generateInviteQR();
+            // Load local game if exists
+            const saved = localStorage.getItem('christmasGame_v2');
+            if (saved) {
+                const data = JSON.parse(saved);
+                gameState.gameName = data.gameName || "";
+            }
+        }
+    } catch (e) {
+        console.error("Initialization Error:", e);
+        // Fallback: Ensure setup-screen is at least visible if something crashes
+        if (gameState.role === 'host') {
+            document.getElementById('setup-screen').classList.add('active');
         }
     }
 };
@@ -59,11 +67,12 @@ function detectRole() {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('join')) {
         gameState.role = 'player';
-        document.getElementById('setup-screen').classList.add('hidden');
-        document.getElementById('player-join-screen').classList.remove('active', 'hidden');
+        document.getElementById('setup-screen').classList.replace('active', 'hidden');
+        document.getElementById('player-join-screen').classList.remove('hidden');
         document.getElementById('player-join-screen').classList.add('active');
     } else {
         gameState.role = 'host';
+        document.getElementById('setup-screen').classList.add('active');
     }
 }
 
@@ -107,33 +116,43 @@ function setupFirebaseSync() {
 // --- Host Logic ---
 
 function generateInviteQR() {
-    const joinUrl = window.location.href.split('?')[0] + '?join=true';
-    const qrcodeContainer = document.getElementById('qrcode');
-    qrcodeContainer.innerHTML = "";
+    try {
+        const joinUrl = window.location.href.split('?')[0] + '?join=true';
+        const qrcodeContainer = document.getElementById('qrcode');
+        if (!qrcodeContainer) return;
 
-    // Create QR
-    new QRCode(qrcodeContainer, {
-        text: joinUrl,
-        width: 128,
-        height: 128
-    });
+        qrcodeContainer.innerHTML = "";
 
-    // Show text link below for debugging
-    const linkText = document.createElement('div');
-    linkText.style.fontSize = '10px';
-    linkText.style.marginTop = '10px';
-    linkText.style.color = '#ccc';
-    linkText.style.wordBreak = 'break-all';
-    linkText.innerText = joinUrl;
-    qrcodeContainer.appendChild(linkText);
+        // Create QR
+        if (typeof QRCode !== 'undefined') {
+            new QRCode(qrcodeContainer, {
+                text: joinUrl,
+                width: 128,
+                height: 128
+            });
+        } else {
+            qrcodeContainer.innerHTML = "<p style='color:red'>QR Code Library load failure. Please refresh.</p>";
+        }
 
-    if (joinUrl.startsWith('file://')) {
-        const warning = document.createElement('p');
-        warning.style.color = '#ff4d4d';
-        warning.style.fontWeight = 'bold';
-        warning.style.fontSize = '12px';
-        warning.innerText = "⚠️ Scanning won't work while opening as a 'file'. See walkthrough for fixes!";
-        qrcodeContainer.appendChild(warning);
+        // Show text link below for debugging
+        const linkText = document.createElement('div');
+        linkText.style.fontSize = '10px';
+        linkText.style.marginTop = '10px';
+        linkText.style.color = '#ccc';
+        linkText.style.wordBreak = 'break-all';
+        linkText.innerText = joinUrl;
+        qrcodeContainer.appendChild(linkText);
+
+        if (joinUrl.startsWith('file://')) {
+            const warning = document.createElement('p');
+            warning.style.color = '#ff4d4d';
+            warning.style.fontWeight = 'bold';
+            warning.style.fontSize = '12px';
+            warning.innerText = "⚠️ Scanning won't work while opening as a 'file'. See walkthrough for fixes!";
+            qrcodeContainer.appendChild(warning);
+        }
+    } catch (e) {
+        console.error("QR Generation Error:", e);
     }
 }
 
@@ -152,6 +171,7 @@ function selectTeamCount(count) {
 function updateHostUI() {
     const container = document.getElementById('team-names-container');
     const startBtn = document.getElementById('start-btn');
+    if (!container || !startBtn) return;
 
     if (gameState.teams.length === 0) {
         container.innerHTML = '<p class="waiting-msg">Waiting for players to join via QR code...</p>';
@@ -168,7 +188,8 @@ function updateHostUI() {
 }
 
 function startGame() {
-    document.getElementById('setup-screen').classList.add('hidden');
+    document.getElementById('setup-screen').classList.replace('active', 'hidden');
+    document.getElementById('game-screen').classList.add('active');
     document.getElementById('game-screen').classList.remove('hidden');
     renderScoreboard();
     saveState();
@@ -181,17 +202,14 @@ function renderScoreboard() {
 
     gameState.teams.forEach((team, index) => {
         const card = document.createElement('div');
-        card.className = `team-card glass ${gameState.buzzerWinner === team.id ? 'buzzed' : ''}`;
+        card.className = `score-card ${gameState.buzzerWinner === team.id ? 'buzzed' : ''}`;
         card.innerHTML = `
-            <div class="team-name">${team.name}</div>
-            <div class="score-display" id="score-${team.id}">${team.score}</div>
+            <h3>${team.name}</h3>
+            <div class="current-score" id="score-${team.id}">${team.score}</div>
             <div class="score-controls">
-                <button class="score-btn" onclick="updateScore('${team.id}', -1)">-1</button>
-                <button class="score-btn" onclick="updateScore('${team.id}', 1)">+1</button>
-                <div class="bonus-row">
-                    <button class="score-btn bonus" onclick="updateScore('${team.id}', 5)">+5</button>
-                    <button class="score-btn bonus" onclick="updateScore('${team.id}', 25)">+25</button>
-                </div>
+                <button class="score-btn btn-sub" onclick="updateScore('${team.id}', -1)">-1</button>
+                <button class="score-btn btn-add" onclick="updateScore('${team.id}', 1)">+1</button>
+                <button class="score-btn btn-bonus" onclick="updateScore('${team.id}', 5)">+5 Bonus 🎁</button>
             </div>
         `;
         scoreboard.appendChild(card);
@@ -254,7 +272,8 @@ function submitPlayerName() {
         });
     }
 
-    document.getElementById('player-join-screen').classList.add('hidden');
+    document.getElementById('player-join-screen').classList.replace('active', 'hidden');
+    document.getElementById('buzzer-screen').classList.add('active');
     document.getElementById('buzzer-screen').classList.remove('hidden');
     document.getElementById('player-team-info').innerText = "Team: " + name;
 }
@@ -280,7 +299,7 @@ function handleBuzzerTrigger(teamId) {
     if (gameState.role === 'host') {
         const alert = document.getElementById('buzzer-alert');
         const nameEl = document.getElementById('buzzer-winner-name');
-        if (winner) {
+        if (winner && alert && nameEl) {
             nameEl.innerText = winner.name;
             alert.classList.remove('hidden');
             renderScoreboard();
@@ -289,13 +308,17 @@ function handleBuzzerTrigger(teamId) {
         const btn = document.getElementById('buzzer-btn');
         const status = document.getElementById('buzzer-status');
         if (gameState.myTeamId === teamId) {
-            status.innerText = "YOU BUZZED!";
-            status.style.color = "#ffd700";
+            if (status) {
+                status.innerText = "YOU BUZZED!";
+                status.style.color = "#ffd700";
+            }
         } else {
-            status.innerText = `${winner ? winner.name : 'Someone'} buzzed!`;
-            status.style.color = "#ff4d4d";
+            if (status) {
+                status.innerText = `${winner ? winner.name : 'Someone'} buzzed!`;
+                status.style.color = "#ff4d4d";
+            }
         }
-        btn.classList.add('disabled');
+        if (btn) btn.classList.add('disabled');
     }
 }
 
@@ -308,7 +331,8 @@ function resetBuzzer() {
 function clearBuzzerUI() {
     gameState.buzzerWinner = null;
     if (gameState.role === 'host') {
-        document.getElementById('buzzer-alert').classList.add('hidden');
+        const alert = document.getElementById('buzzer-alert');
+        if (alert) alert.classList.add('hidden');
         renderScoreboard();
     } else {
         const btn = document.getElementById('buzzer-btn');
@@ -339,6 +363,8 @@ function newGame() {
 }
 
 function finishGame() {
+    if (gameState.teams.length === 0) return;
+
     const maxScore = Math.max(...gameState.teams.map(t => t.score));
     const winners = gameState.teams.filter(t => t.score === maxScore);
 
@@ -353,6 +379,7 @@ function finishGame() {
     winnerScoreEl.innerText = `${maxScore} pts!`;
 
     document.getElementById('winner-screen').classList.remove('hidden');
+    document.getElementById('winner-screen').classList.add('active');
 
     // Announcement
     const gName = gameState.gameName || "the game";
@@ -368,7 +395,7 @@ function finishGame() {
     if (bgMusic) {
         bgMusic.volume = 0.5;
         bgMusic.currentTime = 0;
-        bgMusic.play();
+        bgMusic.play().catch(e => console.log("Audio play failed:", e));
     }
 
     startConfetti();
@@ -385,6 +412,7 @@ function saveState() {
 function closeWinnerScreen() {
     isAnnouncing = false;
     document.getElementById('winner-screen').classList.add('hidden');
+    document.getElementById('winner-screen').classList.remove('active');
     stopConfetti();
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     const bgMusic = document.getElementById('bg-celebration-music');
