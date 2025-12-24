@@ -173,6 +173,14 @@ function finishGame() {
 
     speakWinner(winnerText);
 
+    // Play Background Celebration Music at low volume
+    const bgMusic = document.getElementById('bg-celebration-music');
+    if (bgMusic) {
+        bgMusic.volume = 0.2;
+        bgMusic.currentTime = 0;
+        bgMusic.play().catch(e => console.log("Background music play failed:", e));
+    }
+
     // Start Confetti
     startConfetti();
 }
@@ -181,8 +189,17 @@ function closeWinnerScreen() {
     isAnnouncing = false;
     document.getElementById('winner-screen').classList.add('hidden');
     stopConfetti();
+
+    // Stop Voice
     if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
+    }
+
+    // Stop Background Music
+    const bgMusic = document.getElementById('bg-celebration-music');
+    if (bgMusic) {
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
     }
 }
 
