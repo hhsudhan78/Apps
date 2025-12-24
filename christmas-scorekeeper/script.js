@@ -77,7 +77,20 @@ function detectRole() {
 }
 
 function setupFirebaseSync() {
-    if (!db) return;
+    if (!db) {
+        console.error("Database object not found! Check your Firebase config.");
+        return;
+    }
+
+    // Diagnostic: Check connection to Firebase
+    const connectedRef = firebase.database().ref(".info/connected");
+    connectedRef.on("value", (snap) => {
+        if (snap.val() === true) {
+            console.log("🟢 Firebase Connected successfully!");
+        } else {
+            console.warn("🔴 Firebase Disconnected. Check your Rules or Internet.");
+        }
+    });
 
     const gameRef = db.ref('games/' + gameState.gameId);
 
@@ -85,11 +98,17 @@ function setupFirebaseSync() {
     gameRef.child('teams').on('value', (snapshot) => {
         const teamsData = snapshot.val();
         gameState.teams = teamsData ? Object.values(teamsData) : [];
+        console.log("Sync Update: Received", gameState.teams.length, "teams from Firebase.");
 
         if (gameState.role === 'host') {
             updateHostUI();
         } else {
             updatePlayerUI();
+        }
+    }, (error) => {
+        console.error("Firebase Read Error:", error.message);
+        if (error.message.includes("permission_denied")) {
+            alert("Firebase Error: Permission Denied. Did you set Rules to 'Test Mode'?");
         }
     });
 
