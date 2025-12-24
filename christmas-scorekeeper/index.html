@@ -63,8 +63,37 @@
                     </div>
                 </div>
 
-                <div id="team-names-container">
-                    <p class="waiting-msg">Waiting for players to join via QR code...</p>
+                <div id="team-setup-container" class="team-setup-grid">
+                    <!-- Dynamic team inputs -->
+                    <div class="team-input-slot" id="slot-1">
+                        <label>Team 1 Name:</label>
+                        <input type="text" placeholder="e.g. The Elves" oninput="updateTeamName(1, this.value)"
+                            class="host-team-input">
+                    </div>
+                    <div class="team-input-slot" id="slot-2">
+                        <label>Team 2 Name:</label>
+                        <input type="text" placeholder="e.g. Reindeer" oninput="updateTeamName(2, this.value)"
+                            class="host-team-input">
+                    </div>
+                    <div class="team-input-slot" id="slot-3">
+                        <label>Team 3 Name:</label>
+                        <input type="text" placeholder="e.g. Snowmen" oninput="updateTeamName(3, this.value)"
+                            class="host-team-input">
+                    </div>
+                    <div class="team-input-slot hidden" id="slot-4">
+                        <label>Team 4 Name:</label>
+                        <input type="text" placeholder="Team 4" oninput="updateTeamName(4, this.value)"
+                            class="host-team-input">
+                    </div>
+                    <div class="team-input-slot hidden" id="slot-5">
+                        <label>Team 5 Name:</label>
+                        <input type="text" placeholder="Team 5" oninput="updateTeamName(5, this.value)"
+                            class="host-team-input">
+                    </div>
+                </div>
+
+                <div id="team-names-container" class="hidden">
+                    <!-- This will now briefly show joined status -->
                 </div>
 
                 <button class="btn-primary large" id="start-btn" onclick="startGame()">Start The Party! 🎁</button>
@@ -74,14 +103,14 @@
         <!-- Player Join Screen (Guests Only) -->
         <div id="player-join-screen" class="screen hidden">
             <div class="card glass">
-                <h2>Join a Team!</h2>
-                <div id="player-team-selection">
-                    <!-- Dynamic team slots -->
+                <h2>Pick Your Team!</h2>
+                <div id="player-team-selection" class="team-selection-buttons">
+                    <!-- Choice of team names appear here -->
+                    <p class="waiting-msg">Waiting for the host to set up teams...</p>
                 </div>
                 <div id="player-entry" class="hidden">
-                    <input type="text" id="player-name-input" class="team-name-input"
-                        placeholder="Enter your Team Name">
-                    <button class="btn-primary" onclick="submitPlayerName()">Ready to Win! 🚀</button>
+                    <p id="player-confirm-msg">You are joining <strong>Team Name</strong></p>
+                    <button class="btn-primary" onclick="confirmTeamJoin()">Confirm & Start! 🚀</button>
                 </div>
             </div>
         </div>

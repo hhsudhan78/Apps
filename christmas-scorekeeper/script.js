@@ -28,13 +28,14 @@ try {
 
 // Global State
 let gameState = {
-    role: 'host', // 'host' or 'player'
-    gameId: 'xmas-party-2025', // Fixed for this party
+    role: 'host',
+    gameId: 'xmas-party-2025',
     selectedTeamCount: 3,
-    teams: [],
+    teamConfigs: {}, // {1: "Elves", 2: "Reindeer"...}
+    teams: [], // Joined teams
     gameName: "",
     lastAnnouncement: "",
-    myTeamId: null, // For players
+    myTeamId: null,
     buzzerWinner: null
 };
 
@@ -140,9 +141,22 @@ function setupFirebaseSync() {
                 document.querySelectorAll('.team-count-btn').forEach(btn => {
                     btn.classList.toggle('active', parseInt(btn.innerText) === count);
                 });
+                // Show/Hide input slots
+                for (let i = 1; i <= 5; i++) {
+                    const slot = document.getElementById(`slot-${i}`);
+                    if (slot) slot.classList.toggle('hidden', i > count);
+                }
             } else {
                 updatePlayerUI();
             }
+        }
+    });
+
+    // Watch for Team Configs (Names)
+    gameRef.child('teamConfigs').on('value', (snapshot) => {
+        gameState.teamConfigs = snapshot.val() || {};
+        if (gameState.role === 'player') {
+            updatePlayerUI();
         }
     });
 }
@@ -196,10 +210,21 @@ function selectTeamCount(count) {
         btn.classList.toggle('active', parseInt(btn.innerText) === count);
     });
 
+    // Show/Hide input slots
+    for (let i = 1; i <= 5; i++) {
+        const slot = document.getElementById(`slot-${i}`);
+        if (slot) slot.classList.toggle('hidden', i > count);
+    }
+
     if (db) {
         db.ref('games/' + gameState.gameId + '/selectedTeamCount').set(count);
-        // Clear Firebase teams if count changes (optional, but keeps it clean)
-        db.ref('games/' + gameState.gameId + '/teams').set(null);
+    }
+}
+
+function updateTeamName(index, name) {
+    gameState.teamConfigs[index] = name;
+    if (db) {
+        db.ref('games/' + gameState.gameId + '/teamConfigs/' + index).set(name);
     }
 }
 
@@ -297,32 +322,41 @@ function updatePlayerUI() {
     if (!selection) return;
 
     if (!gameState.myTeamId) {
-        // Show available slots
-        selection.innerHTML = "<h3>Pick a Team Number:</h3>";
+        selection.innerHTML = "<h3>Pick Your Team:</h3>";
+        let hasOptions = false;
+
         for (let i = 1; i <= gameState.selectedTeamCount; i++) {
+            const teamName = gameState.teamConfigs[i] || `Team ${i}`;
             const teamId = `team_${i}`;
-            const existing = gameState.teams.find(t => t.id === teamId);
-            if (!existing) {
-                selection.innerHTML += `<button class="btn-secondary" onclick="joinTeamSlot('${teamId}')">Team ${i}</button>`;
+
+            // Is this team already "taken" by someone else?
+            const isTaken = gameState.teams.some(t => t.id === teamId);
+
+            if (!isTaken) {
+                selection.innerHTML += `<button class="btn-secondary" style="display:block; width:100%; margin:10px 0;" onclick="joinTeamSlot('${teamId}', '${teamName}')">${teamName}</button>`;
+                hasOptions = true;
             }
+        }
+
+        if (!hasOptions) {
+            selection.innerHTML = '<p class="waiting-msg">All teams are currently full or host is setting up...</p>';
         }
     }
 }
 
-function joinTeamSlot(teamId) {
+function joinTeamSlot(teamId, teamName) {
     gameState.myTeamId = teamId;
+    gameState.tempName = teamName;
     document.getElementById('player-team-selection').classList.add('hidden');
     document.getElementById('player-entry').classList.remove('hidden');
+    document.getElementById('player-confirm-msg').innerHTML = `You are joining <strong>${teamName}</strong>`;
 }
 
-function submitPlayerName() {
-    const nameInput = document.getElementById('player-name-input');
-    const name = nameInput.value.trim() || `Team ${gameState.myTeamId.split('_')[1]}`;
-
+function confirmTeamJoin() {
     if (db) {
         db.ref(`games/${gameState.gameId}/teams/${gameState.myTeamId}`).set({
             id: gameState.myTeamId,
-            name: name,
+            name: gameState.tempName,
             score: 0
         });
     }
@@ -330,7 +364,7 @@ function submitPlayerName() {
     document.getElementById('player-join-screen').classList.replace('active', 'hidden');
     document.getElementById('buzzer-screen').classList.add('active');
     document.getElementById('buzzer-screen').classList.remove('hidden');
-    document.getElementById('player-team-info').innerText = "Team: " + name;
+    document.getElementById('player-team-info').innerText = "Team: " + gameState.tempName;
 }
 
 // --- Buzzer Logic ---
