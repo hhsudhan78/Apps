@@ -43,21 +43,33 @@ let gameState = {
 
 window.onload = () => {
     try {
+        console.log("App Initializing...");
         detectRole();
         setupFirebaseSync();
 
         if (gameState.role === 'host') {
             generateInviteQR();
-            // Load local game if exists
-            const saved = localStorage.getItem('christmasGame_v2');
-            if (saved) {
-                const data = JSON.parse(saved);
-                gameState.gameName = data.gameName || "";
+            // Initialize defaults in Firebase if it's a new host session
+            if (db) {
+                const gameRef = db.ref('games/' + gameState.gameId);
+                gameRef.once('value').then(snap => {
+                    const data = snap.val();
+                    if (!data || !data.selectedTeamCount) {
+                        console.log("Initializing default Firebase state...");
+                        gameRef.update({
+                            selectedTeamCount: 3,
+                            teamConfigs: {
+                                1: "The Elves",
+                                2: "Reindeer",
+                                3: "Snowmen"
+                            }
+                        });
+                    }
+                });
             }
         }
     } catch (e) {
         console.error("Initialization Error:", e);
-        // Fallback: Ensure setup-screen is at least visible if something crashes
         if (gameState.role === 'host') {
             document.getElementById('setup-screen').classList.add('active');
         }
@@ -234,19 +246,28 @@ function updateHostUI() {
     if (!container || !startBtn) return;
 
     if (gameState.teams.length === 0) {
-        container.innerHTML = '<p class="waiting-msg">Waiting for players to join via QR code...</p>';
+        container.innerHTML = '<p class="waiting-msg">Waiting for guests to pick a team...</p>';
+        container.classList.remove('hidden');
         startBtn.disabled = true;
     } else {
         container.innerHTML = '<h3>Joined Teams:</h3>';
         gameState.teams.forEach(team => {
             container.innerHTML += `<div class="team-slot">${team.name || '<i>Joining...</i>'}</div>`;
         });
-        // Allow starting with 1 team (useful for testing or small groups)
+        container.innerHTML += `<button class="btn-secondary" style="margin-top:20px; font-size:12px; padding:5px 10px;" onclick="clearAllTeams()">Reset Joined Teams</button>`;
+        container.classList.remove('hidden');
         startBtn.disabled = gameState.teams.length < 1;
-        console.log("Host UI Updated. Teams joined:", gameState.teams.length, "Button disabled:", startBtn.disabled);
     }
 
     renderScoreboard();
+}
+
+function clearAllTeams() {
+    if (confirm("This will remove all joined players. Are you sure?")) {
+        if (db) {
+            db.ref('games/' + gameState.gameId + '/teams').set(null);
+        }
+    }
 }
 
 function startGame() {
@@ -325,21 +346,34 @@ function updatePlayerUI() {
         selection.innerHTML = "<h3>Pick Your Team:</h3>";
         let hasOptions = false;
 
+        console.log("Guest UI Update: Syncing with host... Teams:", gameState.teams.length, "Slots:", gameState.selectedTeamCount);
+
         for (let i = 1; i <= gameState.selectedTeamCount; i++) {
-            const teamName = gameState.teamConfigs[i] || `Team ${i}`;
+            const teamConfigs = gameState.teamConfigs || {};
+            const teamName = teamConfigs[i] || `Team ${i}`;
             const teamId = `team_${i}`;
 
-            // Is this team already "taken" by someone else?
+            // Look for this team in the joined list
             const isTaken = gameState.teams.some(t => t.id === teamId);
 
             if (!isTaken) {
-                selection.innerHTML += `<button class="btn-secondary" style="display:block; width:100%; margin:10px 0;" onclick="joinTeamSlot('${teamId}', '${teamName}')">${teamName}</button>`;
+                selection.innerHTML += `
+                    <button class="btn-secondary" 
+                            style="display:block; width:100%; margin:15px 0; padding:20px; font-size:1.5rem; background:rgba(255,255,255,0.2);" 
+                            onclick="joinTeamSlot('${teamId}', '${teamName.replace(/'/g, "\\'")}')">
+                        ${teamName}
+                    </button>`;
                 hasOptions = true;
             }
         }
 
         if (!hasOptions) {
-            selection.innerHTML = '<p class="waiting-msg">All teams are currently full or host is setting up...</p>';
+            selection.innerHTML = `
+                <div class="waiting-msg">
+                    <p>No available teams found!</p>
+                    <p style="font-size:12px; margin-top:10px;">(Wait for host or try refreshing)</p>
+                    <button class="btn-secondary" onclick="location.reload()" style="font-size:12px; margin-top:10px;">Refresh Page</button>
+                </div>`;
         }
     }
 }
