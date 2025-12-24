@@ -31,9 +31,12 @@ let gameState = {
     role: 'host',
     gameId: 'xmas-party-2025',
     selectedTeamCount: 3,
-    teamConfigs: {}, // {1: "Elves", 2: "Reindeer"...}
-    teams: [], // Joined teams
+    teamConfigs: {},
+    teams: [],
     gameName: "",
+    gameMode: 'normal', // 'normal' or 'bioscope'
+    bioscopeImages: ["", "", "", ""],
+    bioscopeRevealedCount: 0,
     lastAnnouncement: "",
     myTeamId: null,
     buzzerWinner: null
@@ -171,6 +174,23 @@ function setupFirebaseSync() {
             updatePlayerUI();
         }
     });
+
+    // Watch for Game Mode
+    gameRef.child('gameMode').on('value', (snapshot) => {
+        const mode = snapshot.val() || 'normal';
+        gameState.gameMode = mode;
+        updateModeUI();
+    });
+
+    // Watch for Bioscope Progress
+    gameRef.child('bioscope').on('value', (snapshot) => {
+        const bioData = snapshot.val();
+        if (bioData) {
+            gameState.bioscopeImages = bioData.images || ["", "", "", ""];
+            gameState.bioscopeRevealedCount = bioData.revealedCount || 0;
+            renderBioscope();
+        }
+    });
 }
 
 // --- Host Logic ---
@@ -289,9 +309,70 @@ function clearAllTeams() {
     }
 }
 
+function setGameMode(mode) {
+    gameState.gameMode = mode;
+    document.getElementById('mode-normal-btn').classList.toggle('active', mode === 'normal');
+    document.getElementById('mode-bioscope-btn').classList.toggle('active', mode === 'bioscope');
+    document.getElementById('bioscope-setup').classList.toggle('hidden', mode !== 'bioscope');
+
+    if (db) {
+        db.ref('games/' + gameState.gameId + '/gameMode').set(mode);
+    }
+}
+
+function updateModeUI() {
+    const isBio = gameState.gameMode === 'bioscope';
+    const display = document.getElementById('bioscope-display');
+    const revealBtn = document.getElementById('reveal-btn');
+
+    if (display) display.classList.toggle('hidden', !isBio);
+    if (revealBtn) revealBtn.classList.toggle('hidden', !isBio);
+}
+
+function revealNextImage() {
+    if (gameState.bioscopeRevealedCount < 4) {
+        gameState.bioscopeRevealedCount++;
+        if (db) {
+            db.ref('games/' + gameState.gameId + '/bioscope/revealedCount').set(gameState.bioscopeRevealedCount);
+        }
+    }
+}
+
+function renderBioscope() {
+    for (let i = 1; i <= 4; i++) {
+        const frame = document.getElementById(`frame-${i}`);
+        if (!frame) continue;
+
+        const isRevealed = i <= gameState.bioscopeRevealedCount;
+        const url = gameState.bioscopeImages[i - 1];
+
+        if (isRevealed && url) {
+            frame.innerHTML = `<img src="${url}" alt="Lyric Clue">`;
+            frame.classList.add('revealed');
+        } else {
+            frame.innerHTML = `<span style="font-size:2rem; opacity:0.3;">${i}</span>`;
+            frame.classList.remove('revealed');
+        }
+    }
+}
+
 function startGame() {
     try {
         console.log("Attempting to start game. Teams:", gameState.teams.length);
+
+        // Finalize Bioscope Config if in that mode
+        if (gameState.gameMode === 'bioscope' && db) {
+            const imgs = [
+                document.getElementById('bio-img-1').value || "https://images.unsplash.com/photo-1543508282-6319a3e2621f?w=400",
+                document.getElementById('bio-img-2').value || "https://images.unsplash.com/photo-1512338811107-1bc548325615?w=400",
+                document.getElementById('bio-img-3').value || "https://images.unsplash.com/photo-1576919228236-a097c32a5cd4?w=400",
+                document.getElementById('bio-img-4').value || "https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=400"
+            ];
+            db.ref('games/' + gameState.gameId + '/bioscope').set({
+                images: imgs,
+                revealedCount: 0
+            });
+        }
 
         const setupScreen = document.getElementById('setup-screen');
         const gameScreen = document.getElementById('game-screen');
