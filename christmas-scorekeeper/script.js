@@ -380,7 +380,12 @@ function renderBioscope() {
         const url = roundData.images[i - 1];
 
         if (isRevealed && url) {
-            frame.innerHTML = `<img src="${url}" alt="Lyric Clue" onerror="this.src='https://placehold.co/400x400?text=Clue+Not+Found'">`;
+            // Try different extensions if the primary one fails
+            frame.innerHTML = `
+                <img src="${url}" alt="Clue" 
+                     onerror="if(!this.triedPNG){this.triedPNG=true; this.src='${url.replace('.jpg', '.png')}';} 
+                              else if(!this.triedJPNG){this.triedJPNG=true; this.src='${url.replace('.jpg', '.jpg.png')}';}
+                              else {this.src='https://placehold.co/400x400?text=Clue+Not+Found';}">`;
             frame.classList.add('revealed');
         } else {
             frame.innerHTML = `<span style="font-size:2rem; opacity:0.3;">${i}</span>`;
