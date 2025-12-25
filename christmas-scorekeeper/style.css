@@ -55,9 +55,9 @@ h1 {
     transition: max-width 0.5s ease;
 }
 
-/* Wide layout when game is active */
+/* Slightly wider for active game, but NOT 95vw */
 .app-container:has(#game-screen.active) {
-    max-width: 95vw;
+    max-width: 1100px;
 }
 
 /* Glassmorphism Card Style */
@@ -673,9 +673,9 @@ h1 {
 /* Normal Mode: Centered Scoreboard Grid */
 .game-screen.layout-normal .game-layout-split {
     display: flex;
-    flex-direction: row;
-    /* Horizontal layout */
-    justify-content: center;
+    flex-direction: column;
+    /* Back to vertical stacking */
+    align-items: center;
     width: 100%;
 }
 
@@ -738,8 +738,8 @@ h1 {
     flex-grow: 1;
     margin-bottom: 20px;
     position: relative;
-    max-height: 70vh;
-    /* Taller on wide screens */
+    max-height: 50vh;
+    /* Scaled down as requested */
 }
 
 .round-grid {
