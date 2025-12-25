@@ -377,12 +377,11 @@ function showBioscopeAnswer() {
 }
 
 function prevBioscopeRound() {
-    if (gameState.bioscopeRound === 'sample') return;
-
     let currentRound = gameState.bioscopeRound;
-    let nextIdx;
+    if (currentRound === 'sample') return;
 
-    if (currentRound === 1) {
+    let nextIdx;
+    if (currentRound == 1) {
         nextIdx = 'sample';
     } else {
         nextIdx = parseInt(currentRound) - 1;
@@ -400,10 +399,12 @@ function nextBioscopeRound() {
         nextIdx = 1;
     } else {
         let n = parseInt(currentRound);
+        if (isNaN(n)) n = 1;
         if (n < 10) {
             nextIdx = n + 1;
         } else {
-            return; // Already at Round 10
+            console.log("At final round 10.");
+            return;
         }
     }
 

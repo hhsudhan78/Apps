@@ -658,29 +658,28 @@ h1 {
 }
 
 /* Bioscope Round Styles */
-/* Game Layout Split (70/30) */
+/* Game Layout Split (70/30) v3.2 */
 .game-layout-split {
     display: flex;
-    gap: 30px;
-    height: calc(100vh - 120px);
+    gap: 20px;
     width: 100%;
+    align-items: flex-start;
+    margin-top: 20px;
 }
 
 .game-left {
-    flex: 7;
-    /* 70% */
+    flex: 0 0 70%;
     display: flex;
     flex-direction: column;
+    gap: 15px;
 }
 
 .game-right {
-    flex: 3;
-    /* 30% */
-    background: rgba(0, 0, 0, 0.3);
+    flex: 0 0 30%;
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 20px;
-    padding: 20px;
+    padding: 15px;
     border: 2px solid var(--christmas-gold);
-    overflow-y: auto;
 }
 
 .scoreboard-vertical {
