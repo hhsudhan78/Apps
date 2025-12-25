@@ -51,7 +51,7 @@ const bioscopePuzzles = [
         images: Array.from({ length: 6 }, (_, j) => `bioscope/sample/${j + 1}.jpg`),
         answer: "Sample Song Title"
     },
-    ...Array.from({ length: 10 }, (_, i) => ({
+    ...Array.from({ length: 14 }, (_, i) => ({
         round: i + 1,
         images: Array.from({ length: 6 }, (_, j) => `bioscope/round${i + 1}/${j + 1}.jpg`),
         answer: "Enter Song Name Here"
@@ -458,7 +458,7 @@ function renderBioscope() {
         if (gameState.bioscopeRound === 'sample') {
             roundNumEl.innerText = "Sample Round (Training)";
         } else {
-            roundNumEl.innerText = `${gameState.bioscopeRound} / 10`;
+            roundNumEl.innerText = `${gameState.bioscopeRound} / 14`;
         }
     }
     if (roundInfoEl) roundInfoEl.classList.remove('hidden');
