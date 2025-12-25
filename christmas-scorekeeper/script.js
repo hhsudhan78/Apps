@@ -43,10 +43,13 @@ let gameState = {
 };
 
 // Puzzle Configuration (Expected paths in /bioscope/roundX/Y.jpg)
-const bioscopePuzzles = Array.from({ length: 10 }, (_, i) => ({
-    round: i + 1,
-    images: Array.from({ length: 6 }, (_, j) => `bioscope/round${i + 1}/${j + 1}.jpg`)
-}));
+const bioscopePuzzles = [
+    { round: 'sample', images: Array.from({ length: 6 }, (_, j) => `bioscope/sample/${j + 1}.jpg`) },
+    ...Array.from({ length: 10 }, (_, i) => ({
+        round: i + 1,
+        images: Array.from({ length: 6 }, (_, j) => `bioscope/round${i + 1}/${j + 1}.jpg`)
+    }))
+];
 
 // --- Initialization ---
 
@@ -193,7 +196,7 @@ function setupFirebaseSync() {
     gameRef.child('bioscope').on('value', (snapshot) => {
         const bioData = snapshot.val();
         if (bioData) {
-            gameState.bioscopeRound = bioData.round || 1;
+            gameState.bioscopeRound = bioData.round || 'sample';
             gameState.bioscopeRevealedCount = bioData.revealedCount || 0;
             renderBioscope();
         }
@@ -353,6 +356,32 @@ function setBioscopeRound(roundNum) {
     }
 }
 
+function prevBioscopeRound() {
+    if (gameState.bioscopeRound === 'sample') return;
+
+    let nextIdx;
+    if (gameState.bioscopeRound === 1) {
+        nextIdx = 'sample';
+    } else {
+        nextIdx = gameState.bioscopeRound - 1;
+    }
+    setBioscopeRound(nextIdx);
+    resetBuzzer();
+}
+
+function nextBioscopeRound() {
+    let nextIdx;
+    if (gameState.bioscopeRound === 'sample') {
+        nextIdx = 1;
+    } else if (gameState.bioscopeRound < 10) {
+        nextIdx = gameState.bioscopeRound + 1;
+    } else {
+        return; // Already at Round 10
+    }
+
+    setBioscopeRound(nextIdx);
+    resetBuzzer();
+}
 function revealNextImage() {
     if (gameState.bioscopeRevealedCount < 6) {
         gameState.bioscopeRevealedCount++;
@@ -369,15 +398,22 @@ function renderBioscope() {
     // Update Round Counter on TV
     const roundNumEl = document.getElementById('current-round-number');
     const roundInfoEl = document.getElementById('bioscope-round-info');
-    if (roundNumEl) roundNumEl.innerText = `${gameState.bioscopeRound} / 10`;
+    if (roundNumEl) {
+        if (gameState.bioscopeRound === 'sample') {
+            roundNumEl.innerText = "Sample Round (Training)";
+        } else {
+            roundNumEl.innerText = `${gameState.bioscopeRound} / 10`;
+        }
+    }
     if (roundInfoEl) roundInfoEl.classList.remove('hidden');
 
-    // Update Host Next Round Button Visibility
+    // Update Host Navigation Buttons
+    const prevRoundBtn = document.getElementById('prev-round-btn');
     const nextRoundBtn = document.getElementById('next-round-btn');
-    if (nextRoundBtn) {
-        const isBio = gameState.gameMode === 'bioscope';
-        nextRoundBtn.classList.toggle('hidden', !isBio || gameState.bioscopeRound >= 10);
-    }
+    const isBio = gameState.gameMode === 'bioscope';
+
+    if (prevRoundBtn) prevRoundBtn.classList.toggle('hidden', !isBio || gameState.bioscopeRound === 'sample');
+    if (nextRoundBtn) nextRoundBtn.classList.toggle('hidden', !isBio || gameState.bioscopeRound === 10);
 
     for (let i = 1; i <= 6; i++) {
         const frame = document.getElementById(`frame-${i}`);
@@ -423,8 +459,8 @@ function startGame() {
         console.log("Attempting to start game. Teams:", gameState.teams.length);
 
         if (gameState.gameMode === 'bioscope' && db) {
-            // Default to Round 1 on freshly started party
-            setBioscopeRound(1);
+            // Default to Sample Round on freshly started party
+            setBioscopeRound('sample');
         }
 
         const setupScreen = document.getElementById('setup-screen');
