@@ -79,8 +79,9 @@ h1 {
 }
 
 .screen.hidden {
+    display: none !important;
+    /* Strict hide to prevent leakage */
     opacity: 0;
-    transform: translateY(20px);
 }
 
 .screen.active {
@@ -686,10 +687,12 @@ h1 {
 
 .game-screen.layout-normal .scoreboard-vertical {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    /* More flexible for side-by-side */
+    gap: 20px;
     width: 100%;
-    padding: 20px;
+    padding: 10px;
+    justify-items: center;
 }
 
 /* Bioscope Mode: 70/30 Split */
