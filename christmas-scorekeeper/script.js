@@ -341,19 +341,32 @@ function setGameMode(mode) {
 
 function updateModeUI() {
     const gameScreen = document.getElementById('game-screen');
-    if (gameScreen) {
-        const isBio = gameState.gameMode === 'bioscope';
-        gameScreen.className = 'screen active ' + (isBio ? 'layout-bioscope' : 'layout-normal');
-    }
-}
-
-function updateModeUI() {
     const isBio = gameState.gameMode === 'bioscope';
-    const display = document.getElementById('bioscope-display');
-    const revealBtn = document.getElementById('reveal-btn');
 
-    if (display) display.classList.toggle('hidden', !isBio);
+    // Layout class toggling
+    if (gameScreen) {
+        gameScreen.classList.remove('layout-bioscope', 'layout-normal');
+        gameScreen.classList.add(isBio ? 'layout-bioscope' : 'layout-normal');
+    }
+
+    // Component visibility
+    const bioRoundInfo = document.getElementById('bioscope-round-info');
+    const bioDisplay = document.getElementById('bioscope-display');
+    const controlsBar = document.querySelector('.controls-bar');
+
+    if (bioRoundInfo) bioRoundInfo.classList.toggle('hidden', !isBio);
+    if (bioDisplay) bioDisplay.classList.toggle('hidden', !isBio);
+
+    // Hide specific buttons in Normal mode
+    const revealBtn = document.getElementById('reveal-btn');
+    const answerBtn = document.getElementById('show-answer-btn');
+    const prevBtn = document.getElementById('prev-round-btn');
+    const nextBtn = document.getElementById('next-round-btn');
+
     if (revealBtn) revealBtn.classList.toggle('hidden', !isBio);
+    if (answerBtn) answerBtn.classList.toggle('hidden', !isBio);
+    if (prevBtn) prevBtn.classList.toggle('hidden', !isBio);
+    if (nextBtn) nextBtn.classList.toggle('hidden', !isBio);
 }
 
 function setBioscopeRound(roundNum) {
@@ -404,19 +417,23 @@ function nextBioscopeRound() {
     let currentRound = gameState.bioscopeRound;
     let nextIdx;
 
-    if (currentRound === 'sample') {
+    console.log("Navigating from:", currentRound, "type:", typeof currentRound);
+
+    if (currentRound === 'sample' || currentRound == 'sample') {
         nextIdx = 1;
     } else {
         let n = parseInt(currentRound);
         if (isNaN(n)) n = 1;
+
         if (n < 10) {
             nextIdx = n + 1;
         } else {
-            console.log("At final round 10.");
+            console.log("Already at final round 10.");
             return;
         }
     }
 
+    console.log("Next Round Index identified as:", nextIdx);
     setBioscopeRound(nextIdx);
     resetBuzzer();
 }
