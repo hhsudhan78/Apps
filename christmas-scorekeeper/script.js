@@ -343,30 +343,13 @@ function updateModeUI() {
     const gameScreen = document.getElementById('game-screen');
     const isBio = gameState.gameMode === 'bioscope';
 
+    console.log("MODE_DEBUG: Screen Layout updating to:", gameState.gameMode);
+
     // Layout class toggling
     if (gameScreen) {
         gameScreen.classList.remove('layout-bioscope', 'layout-normal');
         gameScreen.classList.add(isBio ? 'layout-bioscope' : 'layout-normal');
     }
-
-    // Component visibility
-    const bioRoundInfo = document.getElementById('bioscope-round-info');
-    const bioDisplay = document.getElementById('bioscope-display');
-    const controlsBar = document.querySelector('.controls-bar');
-
-    if (bioRoundInfo) bioRoundInfo.classList.toggle('hidden', !isBio);
-    if (bioDisplay) bioDisplay.classList.toggle('hidden', !isBio);
-
-    // Hide specific buttons in Normal mode
-    const revealBtn = document.getElementById('reveal-btn');
-    const answerBtn = document.getElementById('show-answer-btn');
-    const prevBtn = document.getElementById('prev-round-btn');
-    const nextBtn = document.getElementById('next-round-btn');
-
-    if (revealBtn) revealBtn.classList.toggle('hidden', !isBio);
-    if (answerBtn) answerBtn.classList.toggle('hidden', !isBio);
-    if (prevBtn) prevBtn.classList.toggle('hidden', !isBio);
-    if (nextBtn) nextBtn.classList.toggle('hidden', !isBio);
 }
 
 function setBioscopeRound(roundNum) {

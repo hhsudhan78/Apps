@@ -187,10 +187,19 @@ h1 {
     margin-bottom: 2rem;
 }
 
+.game-header {
+    width: 100%;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
 #game-name-input {
     background: rgba(0, 0, 0, 0.2);
     border: 2px solid var(--christmas-gold);
-    border-radius: 10px;
+    border-radius: 15px;
     padding: 10px 20px;
     font-size: 2rem;
     font-family: 'Mountains of Christmas', cursive;
@@ -670,21 +679,31 @@ h1 {
 /* Game Layout Split (70/30) v3.2 */
 /* Game Mode Layouts v3.3 */
 
-/* Normal Mode: Centered Scoreboard Grid */
-.game-screen.layout-normal .game-layout-split {
+/* Game Mode Isolation Logic v4.0 */
+.game-screen.layout-normal .bioscope-only {
+    display: none !important;
+}
+
+.game-screen.layout-bioscope .bioscope-only {
+    display: block;
+}
+
+/* Ensure controls bar remains flex when visible */
+.game-screen.layout-bioscope .controls-bar.bioscope-only {
     display: flex;
-    flex-direction: column;
-    /* Back to vertical stacking */
-    align-items: center;
+}
+
+/* Normal Mode: Centered Scoreboard Grid */
+.game-screen.layout-normal .app-container {
+    max-width: 1000px;
+}
+
+.game-screen.layout-normal .game-layout-split {
+    display: block;
     width: 100%;
 }
 
-.game-screen.layout-normal .game-left {
-    display: none;
-}
-
 .game-screen.layout-normal .game-right {
-    flex: 1;
     width: 100%;
     background: transparent;
     border: none;
@@ -701,33 +720,39 @@ h1 {
 }
 
 /* Bioscope Mode: 70/30 Split */
+.game-screen.layout-bioscope .app-container {
+    max-width: 1200px;
+}
+
 .game-screen.layout-bioscope .game-layout-split {
     display: flex;
-    gap: 20px;
+    flex-direction: row;
+    gap: 30px;
     width: 100%;
     align-items: flex-start;
-    margin-top: 20px;
 }
 
 .game-screen.layout-bioscope .game-left {
-    flex: 0 0 70%;
+    flex: 0 0 68%;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
 }
 
 .game-screen.layout-bioscope .game-right {
     flex: 0 0 28%;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 20px;
-    padding: 15px;
+    padding: 20px;
     border: 2px solid var(--christmas-gold);
+    position: sticky;
+    top: 20px;
 }
 
 .game-screen.layout-bioscope .scoreboard-vertical {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
 }
 
 .bioscope-grid {

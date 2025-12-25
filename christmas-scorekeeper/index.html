@@ -22,7 +22,7 @@
 <body>
     <div id="debug-version"
         style="position:fixed; bottom:5px; right:5px; font-size:8px; color:rgba(255,255,255,0.3); z-index:999;">
-        v3.9-pushed</div>
+        v4.0-pushed</div>
     <div class="snowflakes" aria-hidden="true">
         <!-- ... snowflakes ... -->
         <div class="snowflake">❅</div>
@@ -150,24 +150,25 @@
         <!-- Game Screen (Host Only) -->
         <!-- Game Screen (Host Only) -->
         <div id="game-screen" class="screen hidden">
-            <div class="game-layout-split">
-                <!-- Left Side: Puzzles & Controls (70%) -->
-                <div class="game-left">
-                    <div class="game-header">
-                        <input type="text" id="game-name-input" placeholder="Enter Game Name (e.g. Trivia)"
-                            oninput="updateGameName(this.value)">
-                        <div id="buzzer-alert" class="buzzer-alert hidden">
-                            <span id="buzzer-winner-name">TEAM NAME</span> BUZZED IN!
-                            <button class="btn-secondary" onclick="resetBuzzer()">Clear Buzz</button>
-                        </div>
-                    </div>
+            <!-- Game Header (Visible in BOTH modes) -->
+            <div class="game-header">
+                <input type="text" id="game-name-input" placeholder="Enter Game Name (e.g. Trivia)"
+                    oninput="updateGameName(this.value)">
+                <div id="buzzer-alert" class="buzzer-alert hidden">
+                    <span id="buzzer-winner-name">TEAM NAME</span> BUZZED IN!
+                    <button class="btn-secondary" onclick="resetBuzzer()">Clear Buzz</button>
+                </div>
+            </div>
 
-                    <div id="bioscope-round-info" class="hidden"
+            <div class="game-layout-split">
+                <!-- Left Side: Puzzles & Controls (Visible ONLY in Bioscope) -->
+                <div class="game-left bioscope-only">
+                    <div id="bioscope-round-info"
                         style="font-family: 'Mountains of Christmas'; font-size: 2.5rem; color: var(--christmas-gold); text-align: center; margin-bottom: 20px; text-shadow: 0 0 10px rgba(0,0,0,0.5);">
                         Round: <span id="current-round-number">1 / 10</span>
                     </div>
 
-                    <div id="bioscope-display" class="bioscope-grid hidden">
+                    <div id="bioscope-display" class="bioscope-grid">
                         <div class="bio-frame" id="frame-1"></div>
                         <div class="bio-frame" id="frame-2"></div>
                         <div class="bio-frame" id="frame-3"></div>
@@ -182,17 +183,16 @@
                         </div>
                     </div>
 
-                    <div class="controls-bar glass">
-                        <button id="prev-round-btn" class="btn-secondary hidden" onclick="prevBioscopeRound()">⬅️ Prev
+                    <div class="controls-bar glass bioscope-only">
+                        <button id="prev-round-btn" class="btn-secondary" onclick="prevBioscopeRound()">⬅️ Prev
                             Round</button>
-                        <button id="reveal-btn" class="btn-primary hidden" onclick="revealNextImage()">🔍 Reveal
+                        <button id="reveal-btn" class="btn-primary" onclick="revealNextImage()">🔍 Reveal
                             Next</button>
-                        <button id="show-answer-btn" class="btn-primary hidden" onclick="showBioscopeAnswer()"
+                        <button id="show-answer-btn" class="btn-primary" onclick="showBioscopeAnswer()"
                             style="background: #2f5a2e;">📝 Show Answer</button>
-                        <button id="next-round-btn" class="btn-secondary hidden" onclick="nextBioscopeRound()"
+                        <button id="next-round-btn" class="btn-secondary" onclick="nextBioscopeRound()"
                             style="background: var(--christmas-gold); color: #b3000c;">Next Round ➡️</button>
                     </div>
-
                 </div>
 
                 <!-- Right Side: Scoreboard (30% in Bio, Centered in Normal) -->
@@ -242,7 +242,7 @@
         <source src="buzzer.mp3" type="audio/mpeg">
     </audio>
 
-    <script src="script.js?v=3.9"></script>
+    <script src="script.js?v=4.0"></script>
 </body>
 
 </html>
