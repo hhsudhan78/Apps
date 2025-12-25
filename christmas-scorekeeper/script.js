@@ -353,7 +353,7 @@ function updateModeUI() {
         gameScreen.classList.add(isBio ? 'layout-bioscope' : 'layout-normal');
     }
 
-    // FAILSAFE: Directly hide/show Bioscope elements via JavaScript
+    // FAILSAFE 1: Hide elements with bioscope-only class
     const bioscopeElements = document.querySelectorAll('.bioscope-only');
     bioscopeElements.forEach(el => {
         if (isBio) {
@@ -363,7 +363,16 @@ function updateModeUI() {
         }
     });
 
-    console.log("MODE_DEBUG: Bioscope elements", isBio ? 'SHOWN' : 'HIDDEN', `(found ${bioscopeElements.length} elements)`);
+    // FAILSAFE 2: Directly hide specific Bioscope elements by ID
+    const bioscopeIds = ['bioscope-round-info', 'bioscope-display', 'bioscope-answer-overlay'];
+    bioscopeIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.display = isBio ? '' : 'none';
+        }
+    });
+
+    console.log("MODE_DEBUG: Bioscope elements", isBio ? 'SHOWN' : 'HIDDEN', `(found ${bioscopeElements.length} .bioscope-only elements)`);
 }
 
 function setBioscopeRound(roundNum) {
