@@ -363,6 +363,8 @@ function setBioscopeRound(roundNum) {
             isAnswerRevealed: false
         });
     }
+    // Update local immediately for host performance
+    renderBioscope();
 }
 
 function showBioscopeAnswer() {
