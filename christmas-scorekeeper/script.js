@@ -35,19 +35,26 @@ let gameState = {
     teams: [],
     gameName: "",
     gameMode: 'normal',
-    bioscopeRound: 1, // Current active round (1-10)
+    bioscopeRound: 'sample', // Current active round (1-10 or 'sample')
     bioscopeRevealedCount: 0,
+    isAnswerRevealed: false,
     lastAnnouncement: "",
     myTeamId: null,
     buzzerWinner: null
 };
 
 // Puzzle Configuration (Expected paths in /bioscope/roundX/Y.jpg)
+// EDIT THE 'answer' FIELDS BELOW WITH YOUR SONG TITLES!
 const bioscopePuzzles = [
-    { round: 'sample', images: Array.from({ length: 6 }, (_, j) => `bioscope/sample/${j + 1}.jpg`) },
+    {
+        round: 'sample',
+        images: Array.from({ length: 6 }, (_, j) => `bioscope/sample/${j + 1}.jpg`),
+        answer: "Sample Song Title"
+    },
     ...Array.from({ length: 10 }, (_, i) => ({
         round: i + 1,
-        images: Array.from({ length: 6 }, (_, j) => `bioscope/round${i + 1}/${j + 1}.jpg`)
+        images: Array.from({ length: 6 }, (_, j) => `bioscope/round${i + 1}/${j + 1}.jpg`),
+        answer: "Enter Song Name Here"
     }))
 ];
 
@@ -198,6 +205,7 @@ function setupFirebaseSync() {
         if (bioData) {
             gameState.bioscopeRound = bioData.round || 'sample';
             gameState.bioscopeRevealedCount = bioData.revealedCount || 0;
+            gameState.isAnswerRevealed = bioData.isAnswerRevealed || false;
             renderBioscope();
         }
     });
@@ -351,8 +359,16 @@ function setBioscopeRound(roundNum) {
     if (db) {
         db.ref('games/' + gameState.gameId + '/bioscope').set({
             round: roundNum,
-            revealedCount: 0
+            revealedCount: 0,
+            isAnswerRevealed: false
         });
+    }
+}
+
+function showBioscopeAnswer() {
+    gameState.isAnswerRevealed = true;
+    if (db) {
+        db.ref('games/' + gameState.gameId + '/bioscope/isAnswerRevealed').set(true);
     }
 }
 
@@ -414,6 +430,17 @@ function renderBioscope() {
 
     if (prevRoundBtn) prevRoundBtn.classList.toggle('hidden', !isBio || gameState.bioscopeRound === 'sample');
     if (nextRoundBtn) nextRoundBtn.classList.toggle('hidden', !isBio || gameState.bioscopeRound === 10);
+
+    // Update Answer Visibility
+    const answerBtn = document.getElementById('show-answer-btn');
+    if (answerBtn) answerBtn.classList.toggle('hidden', !isBio || gameState.isAnswerRevealed);
+
+    const answerOverlay = document.getElementById('bioscope-answer-overlay');
+    const answerText = document.getElementById('bioscope-answer-text');
+    if (answerOverlay && answerText) {
+        answerText.innerText = roundData.answer || "???";
+        answerOverlay.classList.toggle('visible', gameState.isAnswerRevealed);
+    }
 
     for (let i = 1; i <= 6; i++) {
         const frame = document.getElementById(`frame-${i}`);

@@ -22,7 +22,7 @@
 <body>
     <div id="debug-version"
         style="position:fixed; bottom:5px; right:5px; font-size:8px; color:rgba(255,255,255,0.3); z-index:999;">
-        v2.9-pushed</div>
+        v3.0-pushed</div>
     <div class="snowflakes" aria-hidden="true">
         <!-- ... snowflakes ... -->
         <div class="snowflake">❅</div>
@@ -169,6 +169,12 @@
                 <div class="bio-frame" id="frame-4"></div>
                 <div class="bio-frame" id="frame-5"></div>
                 <div class="bio-frame" id="frame-6"></div>
+
+                <!-- Answer Overlay -->
+                <div id="bioscope-answer-overlay" class="bioscope-answer-container">
+                    <span class="bioscope-answer-label">The Answer Is:</span>
+                    <p id="bioscope-answer-text" class="bioscope-answer-text">SONG NAME</p>
+                </div>
             </div>
 
             <div id="scoreboard" class="scoreboard-grid">
@@ -179,6 +185,8 @@
                 <button id="prev-round-btn" class="btn-secondary hidden" onclick="prevBioscopeRound()">⬅️ Prev
                     Round</button>
                 <button id="reveal-btn" class="btn-primary hidden" onclick="revealNextImage()">🔍 Reveal Next</button>
+                <button id="show-answer-btn" class="btn-primary hidden" onclick="showBioscopeAnswer()"
+                    style="background: #2f5a2e;">📝 Show Answer</button>
                 <button id="next-round-btn" class="btn-secondary hidden" onclick="nextBioscopeRound()"
                     style="background: var(--christmas-gold); color: #b3000c;">Next Round ➡️</button>
                 <button class="btn-secondary" onclick="resetScores()">Reset Scores</button>
