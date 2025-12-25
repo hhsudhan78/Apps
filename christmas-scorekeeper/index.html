@@ -22,7 +22,7 @@
 <body>
     <div id="debug-version"
         style="position:fixed; bottom:5px; right:5px; font-size:8px; color:rgba(255,255,255,0.3); z-index:999;">
-        v3.5-pushed</div>
+        v3.6-pushed</div>
     <div class="snowflakes" aria-hidden="true">
         <!-- ... snowflakes ... -->
         <div class="snowflake">❅</div>
@@ -194,43 +194,42 @@
                     </div>
 
                 </div>
+
+                <!-- Right Side: Scoreboard (30% in Bio, Centered in Normal) -->
+                <div class="game-right">
+                    <h2 class="scoreboard-title"
+                        style="color: var(--christmas-gold); text-align: center; font-family: 'Mountains of Christmas'; font-size: 2.5rem; margin-bottom: 20px;">
+                        Scoreboard</h2>
+                    <div id="scoreboard" class="scoreboard-vertical">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
             </div>
 
-            <!-- Right Side: Scoreboard (30% in Bio, Centered in Normal) -->
-            <div class="game-right">
-                <h2 class="scoreboard-title"
-                    style="color: var(--christmas-gold); text-align: center; font-family: 'Mountains of Christmas'; font-size: 2.5rem; margin-bottom: 20px;">
-                    Scoreboard</h2>
-                <div id="scoreboard" class="scoreboard-vertical">
-                    <!-- Filled by JS -->
+            <!-- Common Utility Buttons (Below Everything - INSIDE game-screen) -->
+            <div class="utility-controls"
+                style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; padding: 20px 0;">
+                <button class="btn-secondary" onclick="resetScores()" style="font-size: 0.9rem;">Reset
+                    Scores</button>
+                <button class="btn-secondary" onclick="newGame()" style="font-size: 0.9rem; background: #666;">New
+                    Game</button>
+                <button class="btn-primary" onclick="finishGame()" style="font-size: 0.9rem;">🏆 Finish Game</button>
+            </div>
+        </div>
+
+        <!-- Winner Screen -->
+        <div id="winner-screen" class="screen hidden overlay">
+            <canvas id="confetti-canvas"></canvas>
+            <div class="winner-card glass">
+                <h2>🎉 And the Winner Is... 🏆</h2>
+                <div id="winner-name" class="winner-text"></div>
+                <div id="winner-score" class="winner-score"></div>
+                <div class="winner-controls">
+                    <button class="btn-secondary" onclick="playCelebrationAudio()">📢 Replay Announcement</button>
+                    <button class="btn-primary large" onclick="closeWinnerScreen()">Keep Playing 🎅</button>
                 </div>
             </div>
         </div>
-
-        <!-- Common Utility Buttons (Below Everything) -->
-        <div class="utility-controls"
-            style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; padding: 20px 0;">
-            <button class="btn-secondary" onclick="resetScores()" style="font-size: 0.9rem;">Reset
-                Scores</button>
-            <button class="btn-secondary" onclick="newGame()" style="font-size: 0.9rem; background: #666;">New
-                Game</button>
-            <button class="btn-primary" onclick="finishGame()" style="font-size: 0.9rem;">🏆 Finish Game</button>
-        </div>
-    </div>
-
-    <!-- Winner Screen -->
-    <div id="winner-screen" class="screen hidden overlay">
-        <canvas id="confetti-canvas"></canvas>
-        <div class="winner-card glass">
-            <h2>🎉 And the Winner Is... 🏆</h2>
-            <div id="winner-name" class="winner-text"></div>
-            <div id="winner-score" class="winner-score"></div>
-            <div class="winner-controls">
-                <button class="btn-secondary" onclick="playCelebrationAudio()">📢 Replay Announcement</button>
-                <button class="btn-primary large" onclick="closeWinnerScreen()">Keep Playing 🎅</button>
-            </div>
-        </div>
-    </div>
     </div>
 
     <!-- Background Celebration Music -->
@@ -243,7 +242,7 @@
         <source src="buzzer.mp3" type="audio/mpeg">
     </audio>
 
-    <script src="script.js?v=3.5"></script>
+    <script src="script.js?v=3.6"></script>
 </body>
 
 </html>
