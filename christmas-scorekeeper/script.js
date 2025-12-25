@@ -35,7 +35,7 @@ let gameState = {
     teams: [],
     gameName: "",
     gameMode: 'normal',
-    bioscopeRound: 'sample', // Current active round (1-10 or 'sample')
+    bioscopeRound: 'sample', // Current active round (1-14 or 'sample')
     bioscopeRevealedCount: 0,
     isAnswerRevealed: false,
     lastAnnouncement: "",
@@ -69,6 +69,8 @@ window.onload = () => {
         if (gameState.role === 'host') {
             generateInviteQR();
             initBioscopeRoundSelector();
+            // Initialize mode UI immediately to hide Bioscope elements in Normal mode
+            updateModeUI();
             // Initialize defaults in Firebase if it's a new host session
             if (db) {
                 const gameRef = db.ref('games/' + gameState.gameId);
@@ -469,7 +471,7 @@ function renderBioscope() {
     const isBio = gameState.gameMode === 'bioscope';
 
     if (prevRoundBtn) prevRoundBtn.classList.toggle('hidden', !isBio || gameState.bioscopeRound === 'sample');
-    if (nextRoundBtn) nextRoundBtn.classList.toggle('hidden', !isBio || gameState.bioscopeRound === 10);
+    if (nextRoundBtn) nextRoundBtn.classList.toggle('hidden', !isBio || gameState.bioscopeRound === 14);
 
     // Update Answer Visibility
     const answerBtn = document.getElementById('show-answer-btn');
