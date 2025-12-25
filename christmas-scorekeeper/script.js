@@ -370,29 +370,39 @@ function showBioscopeAnswer() {
     if (db) {
         db.ref('games/' + gameState.gameId + '/bioscope/isAnswerRevealed').set(true);
     }
+    // Update local UI immediately
+    renderBioscope();
 }
 
 function prevBioscopeRound() {
     if (gameState.bioscopeRound === 'sample') return;
 
+    let currentRound = gameState.bioscopeRound;
     let nextIdx;
-    if (gameState.bioscopeRound === 1) {
+
+    if (currentRound === 1) {
         nextIdx = 'sample';
     } else {
-        nextIdx = gameState.bioscopeRound - 1;
+        nextIdx = parseInt(currentRound) - 1;
     }
+
     setBioscopeRound(nextIdx);
     resetBuzzer();
 }
 
 function nextBioscopeRound() {
+    let currentRound = gameState.bioscopeRound;
     let nextIdx;
-    if (gameState.bioscopeRound === 'sample') {
+
+    if (currentRound === 'sample') {
         nextIdx = 1;
-    } else if (gameState.bioscopeRound < 10) {
-        nextIdx = gameState.bioscopeRound + 1;
     } else {
-        return; // Already at Round 10
+        let n = parseInt(currentRound);
+        if (n < 10) {
+            nextIdx = n + 1;
+        } else {
+            return; // Already at Round 10
+        }
     }
 
     setBioscopeRound(nextIdx);

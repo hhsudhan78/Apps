@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M&J Family Christmas Party 🎄</title>
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css?v=2.6">
+    <link rel="stylesheet" href="style.css?v=3.1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -148,50 +148,70 @@
         </div>
 
         <!-- Game Screen (Host Only) -->
+        <!-- Game Screen (Host Only) -->
         <div id="game-screen" class="screen hidden">
-            <div class="game-header">
-                <input type="text" id="game-name-input" placeholder="Enter Game Name (e.g. Trivia)"
-                    oninput="updateGameName(this.value)">
-                <div id="buzzer-alert" class="buzzer-alert hidden">
-                    <span id="buzzer-winner-name">TEAM NAME</span> BUZZED IN!
-                    <button class="btn-secondary" onclick="resetBuzzer()">Clear Buzz</button>
+            <div class="game-layout-split">
+                <!-- Left Side: Puzzles & Controls (70%) -->
+                <div class="game-left">
+                    <div class="game-header">
+                        <input type="text" id="game-name-input" placeholder="Enter Game Name (e.g. Trivia)"
+                            oninput="updateGameName(this.value)">
+                        <div id="buzzer-alert" class="buzzer-alert hidden">
+                            <span id="buzzer-winner-name">TEAM NAME</span> BUZZED IN!
+                            <button class="btn-secondary" onclick="resetBuzzer()">Clear Buzz</button>
+                        </div>
+                    </div>
+
+                    <div id="bioscope-round-info" class="hidden"
+                        style="font-family: 'Mountains of Christmas'; font-size: 2.5rem; color: var(--christmas-gold); text-align: center; margin-bottom: 20px; text-shadow: 0 0 10px rgba(0,0,0,0.5);">
+                        Round: <span id="current-round-number">1 / 10</span>
+                    </div>
+
+                    <div id="bioscope-display" class="bioscope-grid hidden">
+                        <div class="bio-frame" id="frame-1"></div>
+                        <div class="bio-frame" id="frame-2"></div>
+                        <div class="bio-frame" id="frame-3"></div>
+                        <div class="bio-frame" id="frame-4"></div>
+                        <div class="bio-frame" id="frame-5"></div>
+                        <div class="bio-frame" id="frame-6"></div>
+
+                        <!-- Answer Overlay -->
+                        <div id="bioscope-answer-overlay" class="bioscope-answer-container">
+                            <span class="bioscope-answer-label">The Answer Is:</span>
+                            <p id="bioscope-answer-text" class="bioscope-answer-text">SONG NAME</p>
+                        </div>
+                    </div>
+
+                    <div class="controls-bar glass">
+                        <button id="prev-round-btn" class="btn-secondary hidden" onclick="prevBioscopeRound()">⬅️ Prev
+                            Round</button>
+                        <button id="reveal-btn" class="btn-primary hidden" onclick="revealNextImage()">🔍 Reveal
+                            Next</button>
+                        <button id="show-answer-btn" class="btn-primary hidden" onclick="showBioscopeAnswer()"
+                            style="background: #2f5a2e;">📝 Show Answer</button>
+                        <button id="next-round-btn" class="btn-secondary hidden" onclick="nextBioscopeRound()"
+                            style="background: var(--christmas-gold); color: #b3000c;">Next Round ➡️</button>
+                    </div>
+
+                    <div class="utility-controls"
+                        style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+                        <button class="btn-secondary" onclick="resetScores()" style="font-size: 0.8rem;">Reset
+                            Scores</button>
+                        <button class="btn-primary" onclick="finishGame()" style="font-size: 0.8rem;">🏆 Finish
+                            Game</button>
+                        <button class="btn-secondary" onclick="newGame()" style="font-size: 0.8rem;">New Game</button>
+                    </div>
                 </div>
-            </div>
-            <div id="bioscope-round-info" class="hidden"
-                style="font-family: 'Mountains of Christmas'; font-size: 2.5rem; color: var(--christmas-gold); text-align: center; margin-bottom: 10px; text-shadow: 0 0 10px rgba(0,0,0,0.5);">
-                Round: <span id="current-round-number">1 / 10</span>
-            </div>
 
-            <div id="bioscope-display" class="bioscope-grid hidden">
-                <div class="bio-frame" id="frame-1"></div>
-                <div class="bio-frame" id="frame-2"></div>
-                <div class="bio-frame" id="frame-3"></div>
-                <div class="bio-frame" id="frame-4"></div>
-                <div class="bio-frame" id="frame-5"></div>
-                <div class="bio-frame" id="frame-6"></div>
-
-                <!-- Answer Overlay -->
-                <div id="bioscope-answer-overlay" class="bioscope-answer-container">
-                    <span class="bioscope-answer-label">The Answer Is:</span>
-                    <p id="bioscope-answer-text" class="bioscope-answer-text">SONG NAME</p>
+                <!-- Right Side: Scoreboard (30%) -->
+                <div class="game-right">
+                    <h2
+                        style="text-align: center; color: var(--christmas-gold); font-family: 'Mountains of Christmas'; font-size: 2.5rem; margin-bottom: 20px;">
+                        Scoreboard</h2>
+                    <div id="scoreboard" class="scoreboard-vertical">
+                        <!-- Team Cards Injected Here -->
+                    </div>
                 </div>
-            </div>
-
-            <div id="scoreboard" class="scoreboard-grid">
-                <!-- Team Cards Injected Here -->
-            </div>
-
-            <div class="controls-bar glass">
-                <button id="prev-round-btn" class="btn-secondary hidden" onclick="prevBioscopeRound()">⬅️ Prev
-                    Round</button>
-                <button id="reveal-btn" class="btn-primary hidden" onclick="revealNextImage()">🔍 Reveal Next</button>
-                <button id="show-answer-btn" class="btn-primary hidden" onclick="showBioscopeAnswer()"
-                    style="background: #2f5a2e;">📝 Show Answer</button>
-                <button id="next-round-btn" class="btn-secondary hidden" onclick="nextBioscopeRound()"
-                    style="background: var(--christmas-gold); color: #b3000c;">Next Round ➡️</button>
-                <button class="btn-secondary" onclick="resetScores()">Reset Scores</button>
-                <button class="btn-primary" onclick="finishGame()">🏆 Finish Game</button>
-                <button class="btn-secondary" onclick="newGame()">New Game</button>
             </div>
         </div>
 
@@ -220,7 +240,7 @@
         <source src="buzzer.mp3" type="audio/mpeg">
     </audio>
 
-    <script src="script.js?v=2.6"></script>
+    <script src="script.js?v=3.1"></script>
 </body>
 
 </html>
