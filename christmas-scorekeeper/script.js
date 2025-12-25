@@ -336,6 +336,15 @@ function setGameMode(mode) {
     if (db) {
         db.ref('games/' + gameState.gameId + '/gameMode').set(mode);
     }
+    updateModeUI();
+}
+
+function updateModeUI() {
+    const gameScreen = document.getElementById('game-screen');
+    if (gameScreen) {
+        const isBio = gameState.gameMode === 'bioscope';
+        gameScreen.className = 'screen active ' + (isBio ? 'layout-bioscope' : 'layout-normal');
+    }
 }
 
 function updateModeUI() {
@@ -421,8 +430,12 @@ function revealNextImage() {
 }
 
 function renderBioscope() {
-    const roundData = bioscopePuzzles.find(p => p.round === gameState.bioscopeRound);
-    if (!roundData) return;
+    // Robust search using loose equality for round IDs (v3.3 fix)
+    const roundData = bioscopePuzzles.find(p => String(p.round) === String(gameState.bioscopeRound));
+    if (!roundData) {
+        console.warn("Round data not found for:", gameState.bioscopeRound);
+        return;
+    }
 
     // Update Round Counter on TV
     const roundNumEl = document.getElementById('current-round-number');
@@ -499,9 +512,11 @@ function startGame() {
         console.log("Attempting to start game. Teams:", gameState.teams.length);
 
         if (gameState.gameMode === 'bioscope' && db) {
-            // Default to Sample Round on freshly started party
+            // Default to Sample Round on freshly started Bioscope party
             setBioscopeRound('sample');
         }
+
+        updateModeUI(); // Ensure layout is correct on start
 
         const setupScreen = document.getElementById('setup-screen');
         const gameScreen = document.getElementById('game-screen');
