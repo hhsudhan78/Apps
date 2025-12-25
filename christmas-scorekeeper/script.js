@@ -424,10 +424,10 @@ function nextBioscopeRound() {
         if (isNaN(n)) {
             console.error("NAV_ERROR: currentRound is NaN, defaulting to 1");
             nextIdx = 1;
-        } else if (n < 10) {
+        } else if (n < 14) {
             nextIdx = n + 1;
         } else {
-            console.warn("NAV_WARN: Already at final round 10.");
+            console.warn("NAV_WARN: Already at final round 14.");
             return;
         }
     }
