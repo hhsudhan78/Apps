@@ -417,23 +417,25 @@ function nextBioscopeRound() {
     let currentRound = gameState.bioscopeRound;
     let nextIdx;
 
-    console.log("Navigating from:", currentRound, "type:", typeof currentRound);
+    console.log("NAV_DEBUG: Attempting Next from", currentRound, "type:", typeof currentRound);
 
-    if (currentRound === 'sample' || currentRound == 'sample') {
+    // Explicitly handle all forms of 'sample' or current round index
+    if (String(currentRound).toLowerCase() === 'sample') {
         nextIdx = 1;
     } else {
         let n = parseInt(currentRound);
-        if (isNaN(n)) n = 1;
-
-        if (n < 10) {
+        if (isNaN(n)) {
+            console.error("NAV_ERROR: currentRound is NaN, defaulting to 1");
+            nextIdx = 1;
+        } else if (n < 10) {
             nextIdx = n + 1;
         } else {
-            console.log("Already at final round 10.");
+            console.warn("NAV_WARN: Already at final round 10.");
             return;
         }
     }
 
-    console.log("Next Round Index identified as:", nextIdx);
+    console.log("NAV_DEBUG: Calculated Next Index:", nextIdx);
     setBioscopeRound(nextIdx);
     resetBuzzer();
 }
@@ -517,12 +519,7 @@ function initBioscopeRoundSelector() {
     }
 }
 
-function nextBioscopeRound() {
-    if (gameState.bioscopeRound < 10) {
-        setBioscopeRound(gameState.bioscopeRound + 1);
-        resetBuzzer(); // Clear any existing buzz for the new round
-    }
-}
+// Duplicate function removed for v3.7
 
 function startGame() {
     try {

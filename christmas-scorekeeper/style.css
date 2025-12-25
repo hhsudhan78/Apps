@@ -70,7 +70,8 @@ h1 {
     -webkit-backdrop-filter: blur(10px);
 }
 
-.hidden {
+.hidden,
+#game-screen.hidden .utility-controls {
     display: none !important;
 }
 
