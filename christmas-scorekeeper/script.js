@@ -513,7 +513,8 @@ function startGame() {
             setBioscopeRound('sample');
         }
 
-        updateModeUI(); // Ensure layout is correct on start
+        // CRITICAL: Apply mode-based layout classes
+        updateModeUI();
 
         const setupScreen = document.getElementById('setup-screen');
         const gameScreen = document.getElementById('game-screen');
@@ -530,7 +531,7 @@ function startGame() {
 
         renderScoreboard();
         saveState();
-        console.log("Game started successfully.");
+        console.log("Game started successfully in mode:", gameState.gameMode);
     } catch (e) {
         console.error("Critical Start Error:", e);
         // Show a more helpful message
