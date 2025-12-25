@@ -350,6 +350,18 @@ function updateModeUI() {
         gameScreen.classList.remove('layout-bioscope', 'layout-normal');
         gameScreen.classList.add(isBio ? 'layout-bioscope' : 'layout-normal');
     }
+
+    // FAILSAFE: Directly hide/show Bioscope elements via JavaScript
+    const bioscopeElements = document.querySelectorAll('.bioscope-only');
+    bioscopeElements.forEach(el => {
+        if (isBio) {
+            el.style.display = ''; // Reset to CSS default
+        } else {
+            el.style.display = 'none'; // Force hide
+        }
+    });
+
+    console.log("MODE_DEBUG: Bioscope elements", isBio ? 'SHOWN' : 'HIDDEN', `(found ${bioscopeElements.length} elements)`);
 }
 
 function setBioscopeRound(roundNum) {
